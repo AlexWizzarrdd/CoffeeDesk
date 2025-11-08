@@ -1,0 +1,35 @@
+# Virtual environment
+.venv/
+env/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# SQLite database
+db.sqlite3
+
+# Django
+/staticfiles/
+media/
+*.log
+
+# Environment variables
+.env
+*.env
+
+# PyCharm
+.idea/
+
+# Migrations (если хотите трекать — убери эту строку)
+*/migrations/__pycache__/
+*/migrations/*.py
+!*/migrations/__init__.py
+
+# Node.js (на будущее для React)
+node_modules/
+
+# Other
+.DS_Store
