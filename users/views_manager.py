@@ -2,18 +2,12 @@ from rest_framework import generics, permissions
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
-from .serializers import MeSerializer
+
+from .serializers import MeSerializer, UserApproveSerializer
+from .permissions import IsManager
+from rest_framework.permissions import IsAuthenticated
 
 User = get_user_model()
-
-
-# Permission: только менеджер или админ
-class IsManager(permissions.BasePermission):
-    def has_permission(self, request, view):
-        return (
-            request.user.is_authenticated and
-            request.user.role in ["manager", "admin"]
-        )
 
 
 # 1. Список всех пользователей
@@ -24,18 +18,23 @@ class UsersListView(generics.ListAPIView):
 
 
 # 2. Подтверждение пользователя
-class UserApproveView(APIView):
-    permission_classes = [permissions.IsAuthenticated, IsManager]
+class ApproveUserView(generics.UpdateAPIView):
+    """Подтверждение пользователя менеджером."""
+    queryset = User.objects.all()
+    serializer_class = UserApproveSerializer
+    permission_classes = [IsAuthenticated, IsManager]
+    lookup_url_kwarg = "user_id"
 
-    def post(self, request, pk):
-        try:
-            user = User.objects.get(id=pk)
-        except User.DoesNotExist:
-            return Response({"error": "Пользователь не найден"}, status=404)
+    def perform_update(self, serializer):
+        user = serializer.save()
 
-        user.is_approved = True
+        # Автоматическая активация учётной записи при подтверждении
+        if user.is_approved:
+            user.is_active = True
+        else:
+            user.is_active = False
+
         user.save()
-        return Response({"status": "Пользователь подтверждён"})
 
 
 # 3. Назначение роли
