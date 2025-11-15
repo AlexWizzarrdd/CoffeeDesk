@@ -1,53 +1,57 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../api/auth";
 
 export default function Login() {
-  const [form, setForm] = useState({
-    phone: "",
-    password: "",
-  });
+  const navigate = useNavigate();
 
-  const [response, setResponse] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  function handleChange(e) {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  }
-
-  async function handleSubmit(e) {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
 
-    const res = await fetch("http://127.0.0.1:8000/api/auth/login/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+    try {
+      const response = await api.post("/auth/login/", {
+        phone,
+        password,
+      });
 
-    const data = await res.json();
+      // сохраняем токены
+      localStorage.setItem("access", response.data.access);
+      localStorage.setItem("refresh", response.data.refresh);
 
-    // Если логин успешный — сохраняем токен
-    if (data.access) {
-      localStorage.setItem("access", data.access);
-      localStorage.setItem("refresh", data.refresh);
+      navigate("/profile"); // <--- ВАЖНО
+    } catch (err) {
+      setError("Неверный телефон или пароль");
     }
-
-    setResponse(JSON.stringify(data, null, 2));
-  }
+  };
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div>
       <h2>Вход</h2>
 
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", maxWidth: "300px" }}>
-        <input placeholder="Телефон" name="phone" value={form.phone} onChange={handleChange} />
-        <input placeholder="Пароль" type="password" name="password" value={form.password} onChange={handleChange} />
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
-        <button type="submit" style={{ marginTop: "10px" }}>Войти</button>
+      <form onSubmit={handleLogin}>
+        <input
+          type="text"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          placeholder="Телефон"
+        />
+
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Пароль"
+        />
+
+        <button type="submit">Войти</button>
       </form>
-
-      {response && (
-        <pre style={{ background: "#eee", padding: "10px", marginTop: "20px" }}>
-          {response}
-        </pre>
-      )}
     </div>
   );
 }

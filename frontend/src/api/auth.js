@@ -1,24 +1,14 @@
-export async function registerUser(data) {
-  const response = await fetch("/api/auth/register/", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-  return response.json();
-}
+import axios from "axios";
 
-export async function loginUser(data) {
-  const response = await fetch("/api/auth/login/", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-  return response.json();
-}
+const api = axios.create({
+  baseURL: "http://127.0.0.1:8000/api",
+});
 
-export async function getMe(token) {
-  const response = await fetch("/api/auth/me/", {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return response.json();
-}
+// Для запросов с JWT
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("access");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
+export default api;

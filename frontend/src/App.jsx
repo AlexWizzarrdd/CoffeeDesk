@@ -1,24 +1,38 @@
-import { useState } from "react";
-import Register from "./pages/Register";
-import Login from "./pages/Login";
-import Profile from "./pages/Profile";
+import { Routes, Route, Navigate } from "react-router-dom";
+import Login from "./pages/Login.jsx";
+import Register from "./pages/Register.jsx";
+import Profile from "./pages/Profile.jsx";
+import UsersList from "./pages/UsersList.jsx";
+import PrivateRoute from "./components/PrivateRoute.jsx";
 
-function App() {
-  const [page, setPage] = useState("register");
-
+export default function App() {
   return (
-    <div>
-      <div style={{ display: "flex", gap: "20px", padding: "10px" }}>
-        <button onClick={() => setPage("register")}>Регистрация</button>
-        <button onClick={() => setPage("login")}>Вход</button>
-        <button onClick={() => setPage("profile")}>Личный кабинет</button>
-      </div>
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
-      {page === "register" && <Register />}
-      {page === "login" && <Login />}
-      {page === "profile" && <Profile />}
-    </div>
+      {/* Личный кабинет */}
+      <Route
+        path="/profile"
+        element={
+          <PrivateRoute>
+            <Profile />
+          </PrivateRoute>
+        }
+      />
+
+      {/* Страница менеджера */}
+      <Route
+        path="/manager/users"
+        element={
+          <PrivateRoute managerOnly={true}>
+            <UsersList />
+          </PrivateRoute>
+        }
+      />
+
+      {/* Редирект всего неизвестного на login */}
+      <Route path="*" element={<Navigate to="/login" />} />
+    </Routes>
   );
 }
-
-export default App;

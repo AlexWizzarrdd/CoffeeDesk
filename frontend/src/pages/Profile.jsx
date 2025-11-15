@@ -1,56 +1,79 @@
 import { useEffect, useState } from "react";
+import { getUsers, approveUser } from "../api/users";
 
 export default function Profile() {
-  const [user, setUser] = useState(null);
-  const [error, setError] = useState("");
+  const [users, setUsers] = useState([]);
 
+  // загрузка списка пользователей
   useEffect(() => {
-    async function loadUser() {
-      const token = localStorage.getItem("access");
-
-      if (!token) {
-        setError("Нет токена. Авторизуйтесь.");
-        return;
-      }
-
-      const res = await fetch("http://127.0.0.1:8000/api/auth/me/", {
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-
-      if (res.status === 401) {
-        setError("Токен недействителен. Зайдите заново.");
-        return;
-      }
-
-      const data = await res.json();
-      setUser(data);
-    }
-
-    loadUser();
+    loadUsers();
   }, []);
 
-  if (error) {
-    return <div style={{ padding: 20, color: "red" }}>{error}</div>;
-  }
+  const loadUsers = async () => {
+    try {
+      const response = await getUsers();
+      setUsers(response.data);
+    } catch (err) {
+      console.error("Ошибка загрузки списка:", err);
+    }
+  };
 
-  if (!user) {
-    return <div style={{ padding: 20 }}>Загрузка...</div>;
-  }
+  // подтверждение пользователя
+  const handleApprove = async (id) => {
+    try {
+      await approveUser(id);
+      loadUsers(); // обновляем таблицу
+    } catch (err) {
+      console.error("Ошибка подтверждения:", err);
+    }
+  };
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>Личный кабинет</h2>
+    <div>
+      <h2>Пользователи</h2>
 
-      <div style={{ marginTop: 10 }}>
-        <p><strong>ID:</strong> {user.id}</p>
-        <p><strong>Имя:</strong> {user.first_name}</p>
-        <p><strong>Фамилия:</strong> {user.last_name}</p>
-        <p><strong>Email:</strong> {user.email}</p>
-        <p><strong>Телефон:</strong> {user.phone}</p>
-        <p><strong>Менеджер/Сотрудник (is_staff):</strong> {String(user.is_staff)}</p>
-      </div>
+      <table border="1" cellPadding="10">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>ФИО</th>
+            <th>Телефон</th>
+            <th>Роль</th>
+            <th>Статус</th>
+            <th>Действие</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {users.map((u) => (
+            <tr key={u.id}>
+              <td>{u.id}</td>
+
+              {/* ФИО */}
+              <td>
+                {(u.first_name ?? "") + " " + (u.last_name ?? "")}
+              </td>
+
+              <td>{u.phone}</td>
+              <td>{u.role}</td>
+
+              {/* статус */}
+              <td style={{ color: u.is_approved ? "lightgreen" : "orange" }}>
+                {u.is_approved ? "Подтверждён" : "Ожидает"}
+              </td>
+
+              {/* кнопка утверждения */}
+              <td>
+                {!u.is_approved && (
+                  <button onClick={() => handleApprove(u.id)}>
+                    Подтвердить
+                  </button>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
