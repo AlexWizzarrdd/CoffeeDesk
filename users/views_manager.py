@@ -33,7 +33,7 @@ class UserApproveView(APIView):
         except User.DoesNotExist:
             return Response({"error": "Пользователь не найден"}, status=404)
 
-        user.is_active = True
+        user.is_approved = True
         user.save()
         return Response({"status": "Пользователь подтверждён"})
 
