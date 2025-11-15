@@ -8,6 +8,8 @@ class UserManager(BaseUserManager):
             raise ValueError("Phone number is required")
 
         phone = str(phone).strip()
+        extra_fields.setdefault("is_approved", False)
+        extra_fields.setdefault("role", "employee")
         user = self.model(phone=phone, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
@@ -17,6 +19,8 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_active", True)
+        extra_fields.setdefault("role", "admin")
+        extra_fields.setdefault("is_approved", True)
 
         if extra_fields.get("is_staff") is not True:
             raise ValueError("Superuser must have is_staff=True")
@@ -34,6 +38,15 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+
+    ROLE_CHOICES = [
+        ("employee", "Employee"),
+        ("manager", "Manager"),
+        ("admin", "Admin"),
+    ]
+
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default="employee")
+    is_approved = models.BooleanField(default=False)
 
     objects = UserManager()
 
