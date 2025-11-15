@@ -1,9 +1,5 @@
 from django.urls import path
-from .views_manager import (
-    UsersListView,
-    UserApproveView,
-    UserRoleUpdateView,
-)
+from .views_manager import UsersListView, UserApproveView, UserRoleUpdateView
 
 urlpatterns = [
     path("users/", UsersListView.as_view(), name="users_list"),
