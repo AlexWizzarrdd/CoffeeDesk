@@ -1,6 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
+from django.core.validators import RegexValidator
 
+
+phone_validator = RegexValidator(
+    regex = r'^\+7\d{10}$',
+    message = "Введите номер в формате +79991234567"
+)
+
+name_validator = RegexValidator(
+    regex=r'^[A-Za-zА-Яа-яЁё-]+$',
+    message="Поле может содержать только буквы и дефис"
+)
 
 class UserManager(BaseUserManager):
     def create_user(self, phone, password=None, **extra_fields):
@@ -31,10 +42,10 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    phone = models.CharField(max_length=20, unique=True)
-    email = models.EmailField(blank=True, null=True)
-    first_name = models.CharField(max_length=150, blank=True, null=True)
-    last_name = models.CharField(max_length=150, blank=True, null=True)
+    phone = models.CharField(max_length=12, unique=True, validators=[phone_validator])
+    first_name = models.CharField(max_length=150, validators=[name_validator])
+    last_name = models.CharField(max_length=150, validators=[name_validator])
+    surname = models.CharField(max_length=150, validators=[name_validator])
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -52,6 +63,18 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = "phone"
     REQUIRED_FIELDS = []
+
+    def clean(self):
+        # Normalize and capitalize name fields
+        for field in ["first_name", "last_name", "surname"]:
+            value = getattr(self, field, "")
+            if isinstance(value, str):
+                normalized = " ".join(value.split()).strip().capitalize()
+                setattr(self, field, normalized)
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.phone

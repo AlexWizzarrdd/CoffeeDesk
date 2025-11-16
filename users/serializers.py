@@ -12,23 +12,12 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ("email", "password", "first_name", "last_name", "phone", "role", "is_approved", "is_active")
+        fields = ("phone", "password", "first_name", "last_name", "surname")
         extra_kwargs = {
-            "email": {"required": True},
-            "role": {"read_only": True},
-            "is_approved": {"read_only": True},
-            "is_active": {"read_only": True},
+            "first_name": {"required": True},
+            "last_name": {"required": True},
+            "surname": {"required": True},
         }
-
-    def validate_username(self, value):
-        if User.objects.filter(username=value).exists():
-            raise serializers.ValidationError("Имя пользователя уже занято")
-        return value
-
-    def validate_email(self, value):
-        if User.objects.filter(email=value).exists():
-            raise serializers.ValidationError("Email уже зарегистрирован")
-        return value
 
     def validate_password(self, value):
         validate_password(value)
@@ -48,13 +37,13 @@ class RegisterSerializer(serializers.ModelSerializer):
 class UserListSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("id", "first_name", "last_name", "email", "phone", "role", "is_approved", "is_active")
+        fields = ("id", "first_name", "last_name", "surname", "phone", "role", "is_approved", "is_active")
         read_only_fields = fields
 
 class MeSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("id", "email", "first_name", "last_name", "phone", "role", "is_approved", "is_staff")
+        fields = ("id", "phone", "first_name", "last_name", "surname", "role", "is_approved", "is_staff")
         read_only_fields = fields
 
 class PhoneTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -69,5 +58,5 @@ class UserApproveSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("id", "first_name", "last_name", "email", "phone", "role", "is_approved", "is_active")
+        fields = ("id", "first_name", "last_name", "surname", "phone", "role", "is_approved", "is_active")
         read_only_fields = fields

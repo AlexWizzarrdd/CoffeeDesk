@@ -5,13 +5,13 @@ from .models import User
 
 class CustomUserAdmin(UserAdmin):
     model = User
-    list_display = ("email", "first_name", "last_name", "is_staff")
-    search_fields = ("email", "first_name", "last_name")
-    ordering = ("email",)
+    list_display = ("phone", "first_name", "last_name", "surname", "is_staff")
+    search_fields = ("phone", "first_name", "last_name", "surname")
+    ordering = ("phone",)
 
     fieldsets = (
-        (None, {"fields": ("email", "password")}),
-        ("Personal info", {"fields": ("first_name", "last_name", "phone")}),
+        (None, {"fields": ("phone", "password")}),
+        ("Personal info", {"fields": ("first_name", "last_name", "surname")}),
         ("Permissions", {"fields": ("is_active", "is_staff", "is_superuser")}),
         ("Important dates", {"fields": ("last_login",)}),
     )
@@ -19,7 +19,7 @@ class CustomUserAdmin(UserAdmin):
     add_fieldsets = (
         (None, {
             "classes": ("wide",),
-            "fields": ("email", "password1", "password2", "is_staff", "is_superuser"),
+            "fields": ("phone", "password1", "password2", "is_staff", "is_superuser"),
         }),
     )
 
