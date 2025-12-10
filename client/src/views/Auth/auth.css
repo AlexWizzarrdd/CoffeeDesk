@@ -1,0 +1,148 @@
+.auth-wrapper {
+    max-width: 1009px;
+    min-width: fit-content;
+    width: 100%;
+    height: fit-content;
+    margin: 0 10px;
+}
+
+.login-wrapper {
+    padding: 34px 276px 84px;
+}
+
+.login-wrapper .form-field {
+    margin-bottom: 41px;
+}
+
+.login-wrapper .form-field:last-of-type {
+    margin-bottom: 50px;
+}
+
+.signup-wrapper {
+    padding: 34px 276px 23px;
+}
+
+.signup-wrapper .form-field:last-of-type {
+    margin-bottom: 29px;
+}
+
+.auth-header {
+    width: 100%;
+    font-weight: 400;
+    text-align: center;
+}
+
+.login-header {
+    margin-bottom: 83px;
+}
+
+.signup-header {
+    margin-bottom: 23px;
+}
+
+.auth-toggle {
+    margin-bottom: 8px;
+    font-size: 0.7rem;
+}
+
+
+@media screen and (max-width: 1040px) {
+    .auth-wrapper {
+        max-width: 809px;
+    }
+
+    .login-wrapper {
+        padding: 34px 176px 84px;
+    }
+
+    .signup-wrapper {
+        padding: 34px 176px 23px;
+    }
+}
+
+@media screen and (max-width: 850px) {
+    .auth-wrapper {
+        max-width: 609px;
+    }
+
+    .login-wrapper {
+        padding: 34px 76px 84px;
+    }
+
+    .signup-wrapper {
+        padding: 34px 76px 23px;
+    }
+}
+
+@media screen and (max-width: 650px) {
+    .auth-wrapper {
+        max-width: 409px;
+    }
+
+    .login-wrapper {
+        padding: 34px 46px 84px;
+    }
+
+    .signup-wrapper {
+        padding: 34px 46px 23px;
+    }
+}
+
+@media screen and (max-width: 460px) {
+    .auth-wrapper {
+        max-width: none;
+        width: 100%;
+        height: fit-content;
+        margin: 0;
+        border-radius: 0;
+        border-top-right-radius: 200px;
+    }
+
+    .login-wrapper {
+        padding: 40px 101px 42px 19px;
+    }
+
+    .signup-wrapper {
+        padding: 30px 101px 24px 22px;
+    }
+
+    .auth-header {
+        text-align: left;
+    }
+
+    .login-header {
+        margin-bottom: 20px;
+    }
+
+    .login-wrapper .form-field {
+        margin-bottom: 20px;
+    }
+
+    .login-wrapper .form-field:last-of-type {
+        margin-bottom: 55px;
+    }
+
+    .signup-wrapper .form-field:last-of-type {
+        margin-bottom: 32px;
+    }
+
+    .auth-wrapper .button {
+        width: 100%;
+        background-color: var(--semi-dark);
+        color: var(--primary-color);
+    }
+
+    .auth-page:has(.signup-wrapper) .auth-logo {
+        margin-bottom: 10px;
+    }
+}
+
+@media screen and (max-width: 350px) {
+    .login-wrapper {
+        padding: 40px 75px 42px 19px;
+    }
+
+    .signup-wrapper {
+        padding: 30px 75px 24px 22px;
+    }
+}

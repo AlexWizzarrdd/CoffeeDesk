@@ -1,0 +1,16 @@
+:root {
+    --primary-color: rgba(255, 224, 178, 1);
+    --secondary-color: rgba(211, 163, 118, 1);
+    --dark-color: rgba(62, 37, 34, 1);
+    --light-color: rgba(255, 242, 223, 1);
+    --semi-dark: rgba(140, 110, 99, 1);
+    --black-color: rgba(0, 0, 0, 1);
+    --white-color: rgba(255, 255, 255, 1);
+    --error-color: rgba(255, 69, 0, 1);
+
+    --base-font-size: 20px;
+    --h1-font-size: 1.8rem;
+    --h2-font-size: 1.6rem;
+
+    --nav-offset: 147px;
+}

@@ -1,1 +1,60 @@
-@import "tailwindcss";
+html {
+    font-family: 'Inter';
+    font-size: 20px;
+}
+
+h1 {
+    font-size: var(--h1-font-size);
+}
+
+h2 {
+    font-size: var(--h2-font-size);
+}
+
+.w-full {
+    width: 100%;
+}
+
+.flex {
+    display: flex;
+}
+
+.flex-center {
+    justify-content: center;
+    align-items: center;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.page-with-nav {
+    padding-left: var(--nav-offset);
+}
+
+.wrapper {
+    border-radius: 16px;
+    background-color: var(--light-color);
+}
+
+.text-center {
+    text-align: center;
+}
+
+.error-feedback {
+    color: var(--error-color);
+}
+
+.background-1 {
+    background-image: url('../../assets/backgrounds/background1.jpg');
+    background-size: cover;
+    background-position: top;
+    height: 100vh;
+}

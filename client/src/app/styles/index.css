@@ -1,0 +1,10 @@
+@import './reset.css';
+@import './fonts.css';
+@import "./variables.css";
+@import './main.css';
+@import '../../ui-kit/Button/button.css';
+@import '../../ui-kit/FormField/formField.css';
+@import '../../views/Auth/auth.css';
+@import '../../views/Sidebar/sidebar.css';
+@import '../../pages/AuthPage/authPage.css';
+@import '../../pages/ProfilePage/profilePage.css';

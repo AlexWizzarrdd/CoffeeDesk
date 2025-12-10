@@ -1,0 +1,26 @@
+.form-field {
+    display: inline-block;
+    width: 100%;
+    margin-bottom: 13px;
+}
+
+.form-field:last-of-type {
+    margin-bottom: 0;
+}
+
+.form-field > .error-feedback {
+    margin-top: 8px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px;
+    text-align: center;
+    border: 1px solid var(--black-color);
+    border-radius: 16px;
+    background-color: var(--white-color);
+}
+
+.form-input::placeholder {
+    color: var(--black-color);
+}

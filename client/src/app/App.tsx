@@ -1,9 +1,9 @@
-import './styles/main.css'
+import { RouterProvider } from "react-router/dom";
+import router from "./router";
+import './styles/index.css'
 
 const App = () => {
-    return <div className='text-3xl font-bold underline'>
-        Hello, CoffeeDesk!
-    </div>
+    return <RouterProvider router={router} />
 }
 
 export default App;
