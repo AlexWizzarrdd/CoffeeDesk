@@ -4,8 +4,10 @@ import { Registration } from "../../views/Auth/Registration";
 
 export const AuthPage = () => {
     const [isLogin, setIsLogin] = useState(true);
-    return <div className="page auth-page background-1">
-        <img src="/Logo.svg" className="auth-logo" />
-        {isLogin ? <Login setIsLogin={setIsLogin} /> : <Registration setIsLogin={setIsLogin} />}
+    return <div className="background-1">
+        <main className="page flex-column flex-center auth-page">
+            <img src="/Logo.svg" className="auth-logo" />
+            {isLogin ? <Login setIsLogin={setIsLogin} /> : <Registration setIsLogin={setIsLogin} />}
+        </main>
     </div>
 }

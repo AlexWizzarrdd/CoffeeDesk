@@ -3,11 +3,15 @@
 .auth-logo {
     max-width: 191px;
     max-height: 174px;
-    margin-bottom: 83px;
+    margin-bottom: min(83px, 5vw);
 }
 
 .auth-page {
     padding-left: 0;
+}
+
+.auth-page.page > * {
+    flex: 0;
 }
 
 @media screen and (max-width: 460px) {

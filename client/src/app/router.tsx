@@ -1,6 +1,7 @@
 import { createBrowserRouter, Outlet, redirect } from "react-router";
 import { AuthPage } from "../pages/AuthPage/AuthPage";
 import { ProfilePage } from "../pages/ProfilePage/ProfilePage";
+import { CalendarPage } from "../pages/CalendarPage/CalendarPage";
 import { Sidebar } from "../views/Sidebar/Sidebar";
 import { getToken } from "../utils/tokenApi";
 
@@ -26,7 +27,7 @@ export default createBrowserRouter([
             },
             {
                 path: 'calendar',
-                Component: () => <div className="background-1">Calendar</div>
+                Component: CalendarPage
             },
         ]
     },

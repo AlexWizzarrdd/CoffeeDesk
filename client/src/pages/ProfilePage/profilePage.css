@@ -1,0 +1,120 @@
+.profile {
+    max-width: min(95%, 1587px);
+    padding-top: 45px;
+}
+
+.profile-page {
+    padding-left: calc(var(--nav-offset) + min(56px, 5vw));
+    padding-bottom: min(65px, 95vw);
+    overflow: auto;
+}
+
+.profile-wrapper {
+    margin-top: min(47px, 5vw);
+    margin-bottom: 12px;
+    padding: min(37px, 5vw) 33px;
+    background-color: var(--primary-color);
+}
+
+.profile__text {
+    font-size: clamp(0.6rem, 4vw, 1.85rem);
+}
+
+.profile__name {
+    margin-top: 20px;
+    font-size: clamp(1.2rem, 5vw, 1.8rem);
+    line-height: 120%;
+    font-family: 'Roboto';
+    font-weight: 500;
+}
+
+.profile__job {
+    margin-top: 15px;
+    font-size: 1.35rem;
+    line-height: 135%;
+    font-family: 'Roboto';
+    color: var(--gray-color);
+}
+
+.profile__avatar {
+    margin-right: 24px;
+    width: clamp(135px, 25vw, 188px);
+    height: clamp(135px, 25vw, 188px);
+}
+
+.profile__row {
+    display: flex;
+    justify-content: space-between;
+    padding: 24px min(24px, 5vw) 38px min(24px, 5vw);
+    border-top: 1px solid var(--black-color);
+}
+
+.profile__row--end {
+    justify-content: end;
+}
+
+.profile__row:first-child {
+    border-top: none;
+}
+
+.profile__weekdays {
+    display: flex;
+    justify-content: center;
+    margin-top: 33.5px;
+    font-size: clamp(0.6px, 5vw, 1.85rem);
+}
+
+.profile__weekday {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: min(22px, 1vw);
+    padding: min(20px, 3vw);
+    width: clamp(35px, 9vw, 109px);
+    height: clamp(35px, 9vw, 109px);
+    background-color: var(--primary-color);
+    border-radius: 50%;
+}
+
+.profile__weekday:first-child {
+    margin: 0;
+}
+
+.profile__weekday--active {
+    background-color: var(--semi-dark);
+    color: var(--primary-color);
+}
+
+.profile-dropdown {
+    display: inline-flex;
+}
+
+@media screen and (max-width: 1025px) {
+    .profile-page {
+        padding-left: 0;
+        padding-bottom: 86px;
+        justify-content: center;
+    }
+}
+
+@media screen and (max-width: 621px) {
+    .profile__bio {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .profile__job {
+        text-align: center;
+    }
+
+    .profile__avatar {
+        margin: 0;
+    }
+}
+
+@media screen and (max-width: 465px) {
+    .profile__row {
+        flex-direction: column;
+        gap: 10px;
+    }
+}

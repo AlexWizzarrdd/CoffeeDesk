@@ -1,10 +1,11 @@
 .nav-wrapper {
     position: fixed;
     width: 100%;
-    max-width: 147px;
+    max-width: clamp(86px, 12vw, 147px);
     top: 0;
     left: 0;
     bottom: 0;
+    z-index: 999;
 }
 
 .nav-helper {
@@ -37,6 +38,7 @@
     fill: rgb(255, 255, 255);
     transform: translateX(25%);
     transition: transform .5s ease, fill .8s ease;
+    r: clamp(40px, 8vw, 90px);
 }
 
 .nav-link-wrapper:has(.active) .nav-mask-circle {
@@ -49,16 +51,30 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    max-width: 140px;
-    max-height: 140px;
+    width: clamp(74px, 10.5vw, 140px);
+    height: clamp(74px, 10.5vw, 140px);
     margin-bottom: 30px;
-    padding: 29px 33px;
     border-radius: 50%;
     background-color: var(--primary-color);
     transform: translateX(0);
     transition: transform .4s ease, background-color .5s ease;
     transition-delay: .08s;
     z-index: 1;
+}
+
+.nav-link-wrapper #circle-mask .nav-mask-circle {
+    cy: clamp(0px, 15vw, 170px);
+}
+
+.nav-link-wrapper #circle-mask-2 .nav-mask-circle {
+    cy: clamp(0px, 27.45vw, 340px);
+    cx: clamp(0px, 0.1vw, -24px);
+    r: min(90px, 7vw);
+}
+
+.nav-link-wrapper a svg {
+    width: clamp(47px, 5.6vw, 73px);
+    height: 100%;
 }
 
 .nav-link-wrapper:first-of-type {
@@ -73,21 +89,24 @@
     transform: translateX(50%);
 }
 
-.nav-link-wrapper > img {
-    max-width: 73px;
-    max-height: 82px;
-}
-
 .button-exit {
     width: 100%;
     position: absolute;
     bottom: 0;
     left: 0;
-    padding: 5px;
+    padding: 15px 0;
     z-index: 1;
+    border-radius: 0;
+    background-color: var(--semi-dark);
+    color: var(--primary-color);
 }
 
-@media screen and (max-width: 769px) {
+.button-exit:hover {
+    background-color: var(--secondary-color);
+    color: var(--dark-color);
+}
+
+@media screen and (max-width: 1025px) {
     .nav-wrapper {
         right: 0;
         top: auto;
@@ -101,9 +120,9 @@
     }
 
     .nav {
-        justify-content: space-between;
         flex-direction: row;
         padding: 10px 38px;
+        gap: 5vw;
     }
 
     .nav-link-wrapper:first-of-type {
@@ -111,22 +130,10 @@
     }
 
     .nav-link-wrapper {
-        max-width: 74px;
-        max-height: 74px;
         margin-bottom: 0;
-        padding: 7px 13px;
-        transform: translateY(0);
+        width: max(74px, 8.2vw);
+        height: max(74px, 8.2vw);
         background-color: transparent;
-    }
-
-    .nav-link-wrapper img {
-        width: 43px;
-        height: 53px;
-    }
-
-    .nav-mask-circle {
-        fill: rgb(255, 255, 255);
-        transform: translateY(-25%);
     }
 
     .nav-link-wrapper:has(.active) {
@@ -134,18 +141,17 @@
     }
 
     .nav-link-wrapper:has(.active) .nav-mask-circle {
-        fill: black;
-        transform: translateY(-48%);
-        transition-delay: .05s;
+        display: none;
+        fill: white;
     }
 
     .nav-link-wrapper:has(.active) {
-        transform: translateY(-50%);
+        transform: translateY(0);
     }
 
-    .nav-link-wrapper rect {
+    .nav-link-wrapper .nav-mask rect {
         width: 100vw;
-        height: 147px;
+        height: clamp(86px, 12vw, 147px);
     }
 
     .nav-mask-circle {
@@ -159,6 +165,10 @@
         bottom: auto;
         left: auto;
         right: 1%;
-        top: -990%;
+        top: -90vh;
+        padding: 9px;
+        background-color: var(--primary-color);
+        color: var(--dark-color);
+        border-radius: 16px;
     }
 }

@@ -17,3 +17,8 @@
         url('/fonts/Kreon/Kreon-SemiBold.ttf'),
         url('/fonts/Kreon/Kreon-Bold.ttf');
 }
+
+@font-face {
+    font-family: 'Krona One';
+    src: url('/fonts/KronaOne/KronaOne-Regular.ttf');
+}

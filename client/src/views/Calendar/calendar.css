@@ -1,0 +1,95 @@
+.calendar {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    font-size: clamp(0.5rem, 3vw, 1.6rem);
+}
+
+.calendar-wrapper {
+    height: clamp(15vh, 90%, 872px);
+    width: min(1278px, 95%);
+    padding: clamp(0.5rem, 4vw, 3.05rem) 0.9rem clamp(0.5rem, 6.8vw, 3.05rem);
+}
+
+.calendar__header {
+    justify-content: space-between;
+    align-items: center;
+}
+
+.calendar__header-month {
+    font-size: clamp(1rem, 4.2vw, 3.2rem);
+    cursor: pointer;
+}
+
+.calendar__header-year {
+    font-size: clamp(1.5rem, 5.5vw, 4.8rem);
+    font-family: 'Kreon';
+    cursor: pointer;
+}
+
+.calendar__weekdays {
+    margin-bottom: min(10px, 2vw);
+    padding: 5px 0;
+    justify-content: space-around;
+    border-top: 3px solid var(--black-color);
+    border-bottom: 3px solid var(--black-color);
+    font-size: clamp(0.5rem, 3vw, 1.55rem);
+}
+
+.calendar__days {
+    position: relative;
+    display: grid;
+    flex: 1;
+    grid-template-columns: repeat(7, 1fr);
+    border: 1px solid var(--black-color);
+    font-family: 'Kreon';
+}
+
+.calendar__day {
+    padding: 0.15rem 0px 0px 0.3rem;
+    border-left: 1px solid var(--black-color);
+}
+
+.calendar__day:nth-child(7n+1) {
+    border-left: none;
+}
+
+.calendar__day:nth-child(1n+8) {
+    border-top: 1px solid var(--black-color);
+}
+
+.calendar__button svg {
+    width: min(6vw, 58px);
+    height: min(8vw, 101px);
+}
+
+.calendar__button--prev {
+    transform: rotate(180deg);
+    margin-right: 5px;
+}
+
+.calendar__button--next {
+    margin-left: 5px;
+}
+
+.calendar-modal {
+    padding: 14px min(5vw, 48px);
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background-color: var(--light-color);
+}
+
+.calendar-modal__header {
+    font-size: min(7vw, 2.25rem);
+}
+
+.calendar-modal__day {
+    font-family: 'Krona One';
+}
+
+.calendar-modal__exit {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+}

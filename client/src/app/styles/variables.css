@@ -6,11 +6,12 @@
     --semi-dark: rgba(140, 110, 99, 1);
     --black-color: rgba(0, 0, 0, 1);
     --white-color: rgba(255, 255, 255, 1);
+    --gray-color: rgba(104, 107, 124, 1);
     --error-color: rgba(255, 69, 0, 1);
 
     --base-font-size: 20px;
     --h1-font-size: 1.8rem;
     --h2-font-size: 1.6rem;
 
-    --nav-offset: 147px;
+    --nav-offset: clamp(89px, 15vw, 217px);
 }

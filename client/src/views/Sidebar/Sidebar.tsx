@@ -1,6 +1,9 @@
-import { NavLink, useNavigate } from 'react-router';
-import { clearTokens } from '../../utils/tokenApi';
 import { useState } from 'react';
+import { NavLink, useNavigate } from 'react-router';
+import CalendarIcon from '@/assets/icons/calendarLogo.svg?react';
+import ProfileIcon from '@/assets/icons/profileLogo.svg?react';
+import { clearTokens } from '@/utils/tokenApi';
+
 
 export const Sidebar = () => {
     const [activePage, setActivePage] = useState(location.pathname);
@@ -20,7 +23,7 @@ export const Sidebar = () => {
                     </defs>
                 </svg>
                 <NavLink to='/'>
-                    <img src='/profileLogo.svg' />
+                    <ProfileIcon />
                 </NavLink>
             </div>
             <div className='nav-link-wrapper' onClick={() => setTimeout(() => setActivePage('/calendar'), 250)}>
@@ -33,7 +36,7 @@ export const Sidebar = () => {
                     </defs>
                 </svg>
                 <NavLink to='/calendar'>
-                    <img src='/calendarLogo.svg' />
+                    <CalendarIcon />
                 </NavLink>
             </div>
         </nav>
