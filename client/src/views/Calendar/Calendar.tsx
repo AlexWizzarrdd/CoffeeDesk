@@ -1,7 +1,7 @@
-import React, { Activity, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Dropdown } from "@/ui-kit/Dropdown/Dropdown";
 import { YearDropdown } from "./components/YearDropdown";
-import { Modal } from "./components/Modal";
+import { DayModal } from "@/components/Modal/DayModal";
 import ArrowIcon from '@/assets/icons/arrow.svg?react';
 
 const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
@@ -16,12 +16,12 @@ const createDays = (month: number, year: number) => {
     const startDate = new Date(year, month, 1 - startWeekday);
     const endDate = new Date(year, month, lastDay.getDate() + (6 - endWeekday));
 
-    const days: number[] = [];
+    const days: Date[] = [];
     const curr = new Date(startDate);
 
     while (curr <= endDate) {
         for (let i = 0; i < 7; i++) {
-            days.push(curr.getDate());
+            days.push(new Date(curr));
             curr.setDate(curr.getDate() + 1);
         }
     }
@@ -60,7 +60,7 @@ export const Calendar = () => {
     const date = new Date();
     const [month, setMonth] = useState<number>(date.getMonth());
     const [year, setYear] = useState<number>(date.getFullYear());
-    const [selectedDay, setSelectedDay] = useState<number|null>(null);
+    const [selectedDate, setSelectedDate] = useState<Date|null>(null);
     const days = createDays(month, year);
 
     useEffect(() => {
@@ -116,10 +116,8 @@ export const Calendar = () => {
                 <span className="calendar__weekday">Вс</span>
             </div>
             <div className="calendar__days">
-                {days.map((day, i) => <div key={`${day}${i}`} className="calendar__day" onClick={() => setSelectedDay(day)}>{day}</div>)}
-                <Activity mode={selectedDay ? 'visible' : 'hidden'}>
-                    <Modal day={selectedDay} month={month} closeModal={() => setSelectedDay(null)} />
-                </Activity>
+                {days.map((day, i) => <div key={`${day}${i}`} className="calendar__day" onClick={() => setSelectedDate(day)}>{day.getDate()}</div>)}
+                <DayModal date={selectedDate} isOpen={Boolean(selectedDate)} closeModal={() => setSelectedDate(null)} />
             </div>
         </div>
         <button className="calendar__button calendar__button--next" onClick={() => nextMonthHandler(month, 1, setMonth, setYear)}>

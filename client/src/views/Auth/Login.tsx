@@ -11,7 +11,7 @@ export const Login = observer(({ setIsLogin }: LoginProp) => {
     return <div className="wrapper auth-wrapper login-wrapper flex flex-column flex-center">
         <h1 className="auth-header login-header">Авторизация</h1>
         <form className="flex flex-column flex-center w-full login-form" onSubmit={loginModel.loginUser}>
-            <FormField id="phone" type="tel" value={loginModel.phone} placeholder="Введите номер телефона" cb={loginModel.setPhone} error={loginModel.phoneError} />
+            <FormField id="phone" type="tel" value={loginModel.phone} autoComplete="off" placeholder="Введите номер телефона" cb={loginModel.setPhone} error={loginModel.phoneError} />
             <FormField id="password" type="password" value={loginModel.password} placeholder="Введите пароль" cb={loginModel.setPassword} error={loginModel.passwordError} />
             {loginModel.networkError ? <p className="error-feedback">{loginModel.networkError}</p> : null}
             <button className="auth-toggle" onClick={() => setIsLogin(false)}>Еще нет аккаунта?</button>

@@ -2,7 +2,7 @@ import { makeAutoObservable, runInAction } from 'mobx';
 import type { FormEvent } from 'react';
 import { isValidPhone, isValidName } from '../utils/validation';
 import { logIn, signUp } from '../services/auth.service';
-import { setToken } from '../utils/tokenApi';
+import { setToken } from '../api/tokenApi';
 
 class LoginModel {
     phone: string = '';
@@ -16,8 +16,13 @@ class LoginModel {
     }
 
     setPhone = (payload: string) => {
-        this.phone = payload;
+        if (payload.length <= 2) {
+            this.phone = '';
+        } else {
+            this.phone = this.phone ? payload : `+7${payload}`;
+        }
     }
+
     setPassword = (payload: string) => {
         this.password = payload;
     }
@@ -34,7 +39,7 @@ class LoginModel {
         this.clearErrors();
         
         if (!isValidPhone(this.phone)) {
-            this.phoneError = 'Неверный формат (+7XXXXXXXXXXX)';
+            this.phoneError = 'Неверный формат (+7XXXXXXXXXX)';
             return;
         }
 
@@ -42,21 +47,18 @@ class LoginModel {
             phone: this.phone,
             password: this.password
         });
-
         response
-        .then(resp => {
-            const tokens = resp.json();
+        .then(tokens => {
             setToken(tokens['access'], 'access');
             setToken(tokens['refresh'], 'refresh');
         })
         .catch(error => {
             runInAction(() => {
-                this.networkError = error.status;
+                this.networkError = error.message;
             })
         })
         
         if (!this.networkError) {
-            setToken('access', 'access');
             //redirect('/')
             window.location.href = '/';
         }
@@ -87,15 +89,23 @@ class SignupModel {
     setFirstName = (payload: string) => {
         this.firstName = payload;
     }
+
     setLastName = (payload: string) => {
         this.lastName = payload;
     }
+
     setPhone = (payload: string) => {
-        this.phone = payload;
+        if (payload === '+') {
+            this.phone = '';
+        } else {
+            this.phone = this.phone ? payload : `+7${payload}`;
+        }
     }
+
     setPassword = (payload: string) => {
         this.password = payload;
     }
+
     setConfirmedPassword = (payload: string) => {
         this.confirmedPassword = payload;
     }
@@ -144,18 +154,7 @@ class SignupModel {
         })
 
         response
-        .then(resp => {
-            //const user = resp.json();
-            const user = {
-                "id": 7,
-                "email": "test@mail.com",
-                "first_name": "Иван",
-                "last_name": "Иванов",
-                "phone": "+79991234567",
-                "role": "employee",
-                "is_approved": false,
-                "is_active": false
-            }
+        .then(user => {
             runInAction(() => {
                 this.isRegistrate = true;
                 if (!user.is_approved) {

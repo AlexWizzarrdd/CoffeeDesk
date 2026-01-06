@@ -6,6 +6,7 @@
     left: 0;
     bottom: 0;
     z-index: 999;
+    grid-area: sidebar;
 }
 
 .nav-helper {
@@ -14,10 +15,6 @@
     width: 100%;
     background-color: var(--primary-color);
     mask: url(#circle-mask);
-}
-
-.nav-helper-2 {
-    mask: url(#circle-mask-2);
 }
 
 .nav {
@@ -29,25 +26,15 @@
 
 .nav-mask {
     position: absolute;
-    top: 0;
-    left: 0;
     z-index: -99;
 }
 
 .nav-mask-circle {
-    fill: rgb(255, 255, 255);
-    transform: translateX(25%);
-    transition: transform .5s ease, fill .8s ease;
-    r: clamp(40px, 8vw, 90px);
-}
-
-.nav-link-wrapper:has(.active) .nav-mask-circle {
-    fill: black;
-    transform: translateX(48%);
-    transition-delay: .05s;
+    transition: fill .8s ease, cx .5s ease;
 }
 
 .nav-link-wrapper {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -58,18 +45,8 @@
     background-color: var(--primary-color);
     transform: translateX(0);
     transition: transform .4s ease, background-color .5s ease;
-    transition-delay: .08s;
+    transition-delay: .04s;
     z-index: 1;
-}
-
-.nav-link-wrapper #circle-mask .nav-mask-circle {
-    cy: clamp(0px, 15vw, 170px);
-}
-
-.nav-link-wrapper #circle-mask-2 .nav-mask-circle {
-    cy: clamp(0px, 27.45vw, 340px);
-    cx: clamp(0px, 0.1vw, -24px);
-    r: min(90px, 7vw);
 }
 
 .nav-link-wrapper a svg {
@@ -149,14 +126,8 @@
         transform: translateY(0);
     }
 
-    .nav-link-wrapper .nav-mask rect {
+    .nav-mask rect {
         width: 100vw;
-        height: clamp(86px, 12vw, 147px);
-    }
-
-    .nav-mask-circle {
-        cy: 95vh;
-        cx: 120;
     }
 
     .button-exit {

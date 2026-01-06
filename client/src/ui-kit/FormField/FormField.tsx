@@ -8,10 +8,10 @@ type FormFieldData = ComponentPropsWithoutRef<'input'> & {
 
 }
 
-export const FormField = ({ id, type, value, labelText, placeholder, cb, error, required, classess = '' }: FormFieldData) => {
+export const FormField = ({ id, type, value, labelText, placeholder, cb, error, required, classess = '', ...inputProps }: FormFieldData) => {
     return <label className={`form-field ${classess}`}>
         { labelText }
-        <input id={id} type={type} required={required} className="form-input" placeholder={placeholder} value={value} onChange={(event: ChangeEvent<HTMLInputElement>) => cb(event.target.value)} />
+        <input id={id} type={type} required={required} className="form-input" placeholder={placeholder} value={value} onChange={(event: ChangeEvent<HTMLInputElement>) => cb(event.target.value)} {...inputProps} />
         { error ? <p className="error-feedback">{ error }</p> : null }
     </label>
 }

@@ -1,18 +1,18 @@
-import { getToken } from "../utils/tokenApi"
+import { getToken } from "../api/tokenApi"
 
-type Login = {
+type LoginData = {
     phone: string,
     password: string
 }
 
-type Signup = {
+type SignupData = {
     "password": string,
     "first_name": string,
     "last_name": string,
     "phone": string
 }
 
-export const logIn = (data: Login) => {
+export const logIn = (data: LoginData) => {
     const url = '/api/auth/login/';
     return fetch(url, {
         method: 'POST',
@@ -28,7 +28,7 @@ export const logIn = (data: Login) => {
     });
 }
 
-export const signUp = (data: Signup) => {
+export const signUp = (data: SignupData) => {
     const url = '/api/auth/register/';
     return fetch(url, {
         method: 'POST',

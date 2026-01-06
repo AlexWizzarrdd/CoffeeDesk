@@ -3,27 +3,38 @@ import { AuthPage } from "../pages/AuthPage/AuthPage";
 import { ProfilePage } from "../pages/ProfilePage/ProfilePage";
 import { CalendarPage } from "../pages/CalendarPage/CalendarPage";
 import { Sidebar } from "../views/Sidebar/Sidebar";
-import { getToken } from "../utils/tokenApi";
+import { getToken } from "../api/tokenApi";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export default createBrowserRouter([
     {
+        id: 'root',
         path: '/',
         element: <>
             <Sidebar />
             <Outlet />
         </>,
         loader: () => {
-            // проверка и обновление токенов
-            const token = getToken('access')
-            if (!token) {
+            if (!getToken('access') && !getToken('refresh')) {
                 throw redirect('/auth')
             }
         },
         children: [
             {
                 index: true,
-                Component: ProfilePage
+                Component: ProfilePage,
+                loader: () => {
+                    return {
+                        "id": 7,
+                        "email": "test@mail.com",
+                        "first_name": "Иван",
+                        "last_name": "Иванов",
+                        "phone": "+79991234567",
+                        "role": "employee",
+                        "is_approved": false,
+                        "is_active": false
+                    }
+                }
             },
             {
                 path: 'calendar',

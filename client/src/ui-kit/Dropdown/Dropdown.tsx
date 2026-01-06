@@ -34,26 +34,37 @@ export const Dropdown = <T extends ReactNode>({
     theme = '', 
     withIcon }: DropdownProps<T>) => {
     const [isOpen, setIsOpen] = useState(false);
-    const currentMenu = useRef<HTMLDivElement>(null);
+    const menuRef = useRef<HTMLDivElement>(null);
+    const itemsRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         const stateMenuHandler = (event: MouseEvent) => {
-            if (currentMenu.current && !currentMenu.current.contains(event.target as Node)) {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
                 setIsOpen(false);
             }
         }
         const controller = new AbortController();
 
         document.addEventListener('mousedown', stateMenuHandler, { signal: controller.signal});
+        
+        if (itemsRef.current) {
+            const itemsPos = itemsRef.current.getBoundingClientRect();
+            const itemPos = itemsRef.current.children[0].getBoundingClientRect();
+            const itemsHeight = itemsRef.current.children.length * itemPos?.height;
+            const resHeight = itemsPos.top + itemsHeight;
+            if (resHeight > window.innerHeight) {
+                itemsRef.current?.classList.add('dropdown__items--top');
+            }
+        }
 
         return () => {
             controller.abort();
         }
     })
 
-    return <div className={`dropdown ${className} ${withIcon ?? 'dropdown--with-icon'} ${THEMES[theme]}`} ref={currentMenu} onClick={() => setIsOpen(!isOpen)}>
+    return <div className={`dropdown ${className} ${withIcon ?? 'dropdown--with-icon'} ${THEMES[theme]}`} ref={menuRef} onClick={() => setIsOpen(!isOpen)}>
         <div className={"dropdown__selected" + ` ${selectedItemClass}`}>{activeItem}</div>
-        <div className={isOpen ? `dropdown__items open` : "dropdown__items"} onWheel={wheelHandler} onKeyDown={keyDownHandler}>
+        <div ref={itemsRef} className={isOpen ? `dropdown__items open` : "dropdown__items"} onWheel={wheelHandler} onKeyDown={keyDownHandler}>
             {items.map((item) => {
                 return <button key={String(item)} onClick={() => {
                     selectItem(item);

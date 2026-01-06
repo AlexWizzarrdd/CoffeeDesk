@@ -1,0 +1,7 @@
+import { apiFetch } from "@/api/apiFetch";
+
+export const getUser = () => {
+    return apiFetch('/api/auth/me/', {
+        method: "GET"
+    })
+}

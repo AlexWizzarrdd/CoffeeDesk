@@ -72,24 +72,6 @@
     margin-left: 5px;
 }
 
-.calendar-modal {
-    padding: 14px min(5vw, 48px);
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    background-color: var(--light-color);
-}
-
-.calendar-modal__header {
-    font-size: min(7vw, 2.25rem);
-}
-
-.calendar-modal__day {
-    font-family: 'Krona One';
-}
-
-.calendar-modal__exit {
-    position: absolute;
-    top: 5px;
-    right: 10px;
+.calendar .dropdown__items {
+    z-index: 99;
 }

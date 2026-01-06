@@ -1,0 +1,25 @@
+.modal {
+    padding: 14px min(5vw, 48px);
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background-color: var(--light-color);
+}
+
+.modal__header {
+    font-size: min(7vw, 2.25rem);
+}
+
+.modal__day {
+    font-family: 'Krona One';
+}
+
+.modal__exit {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+}
+
+.modal--round {
+    border-radius: 20px;
+}
