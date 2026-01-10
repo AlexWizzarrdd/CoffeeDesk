@@ -1,9 +1,10 @@
-import { Activity, useEffect, useRef, type RefObject } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 import { NavLink, useNavigate } from "react-router";
 import CalendarIcon from "@/assets/icons/calendarLogo.svg?react";
 import ProfileIcon from "@/assets/icons/profileLogo.svg?react";
 import { clearTokens } from "@/api/tokenApi";
 import { useAuthContext } from "@/hooks/authHooks";
+import { NotificationsBell } from "@/components/Notifications/NotificationsBell";
 
 const updateMaskPosition = (
   maskRef: RefObject<SVGCircleElement | null>,
@@ -18,10 +19,10 @@ const updateMaskPosition = (
 };
 
 const calculateMaskParams = (
-  wrapperElement: EventTarget & HTMLDivElement,
+  wrapperElement: HTMLDivElement | null,
   maskRef: RefObject<SVGCircleElement | null>
 ) => {
-  if (!maskRef.current) return;
+  if (!wrapperElement || !maskRef.current) return;
 
   const wrapper = wrapperElement.getBoundingClientRect();
   const mask = maskRef.current.ownerSVGElement?.getBoundingClientRect();
@@ -44,7 +45,7 @@ const linkHandler = (
   circleRef: RefObject<SVGCircleElement | null>
 ) => {
   if (ev.target === ev.currentTarget) return;
-  const el = ev.currentTarget;
+  const el = ev.currentTarget; // HTMLDivElement
   if (el.querySelector(".active")) return;
 
   circleRef.current?.setAttribute("cx", "90");
@@ -59,17 +60,15 @@ export const Sidebar = () => {
   const { user } = useAuthContext();
   const navigate = useNavigate();
 
-  // ✅ manager И admin видят Users
   const isManagerLike = user.role === "manager" || user.role === "admin";
 
   useEffect(() => {
-    updateMaskPosition(
-      circleRef,
-      calculateMaskParams(
-        document.querySelector(".active")?.parentNode as HTMLDivElement,
-        circleRef
-      )
-    );
+    const active = document.querySelector(".active");
+    const wrapper = (active?.parentElement as HTMLDivElement | null) ?? null;
+    if (!wrapper) return;
+
+    const params = calculateMaskParams(wrapper, circleRef);
+    updateMaskPosition(circleRef, params);
   }, []);
 
   return (
@@ -93,35 +92,32 @@ export const Sidebar = () => {
       </div>
 
       <nav className="nav">
-        <div
-          className="nav-link-wrapper"
-          onMouseDown={(ev) => linkHandler(ev, circleRef)}
-        >
-          <NavLink to="/">
-            <ProfileIcon />
-          </NavLink>
-        </div>
+  <div className="nav-link-wrapper" onMouseDown={(ev) => linkHandler(ev, circleRef)}>
+    <NavLink to="/">
+      <ProfileIcon />
+    </NavLink>
+  </div>
 
-        <div
-          className="nav-link-wrapper"
-          onMouseDown={(ev) => linkHandler(ev, circleRef)}
-        >
-          <NavLink to="/calendar">
-            <CalendarIcon />
-          </NavLink>
-        </div>
+  <div className="nav-link-wrapper" onMouseDown={(ev) => linkHandler(ev, circleRef)}>
+    <NavLink to="/calendar">
+      <CalendarIcon />
+    </NavLink>
+  </div>
 
-        {isManagerLike && (
-          <div
-            className="nav-link-wrapper"
-            onMouseDown={(ev) => linkHandler(ev, circleRef)}
-          >
-            <NavLink to="/users">
-              <ProfileIcon />
-            </NavLink>
-          </div>
-        )}
-      </nav>
+  <div className="nav-link-wrapper" onMouseDown={(ev) => linkHandler(ev, circleRef)}>
+    <NavLink to="/notifications">
+      <NotificationsBell />
+    </NavLink>
+  </div>
+
+  {isManagerLike && (
+    <div className="nav-link-wrapper" onMouseDown={(ev) => linkHandler(ev, circleRef)}>
+      <NavLink to="/users">
+        <ProfileIcon />
+      </NavLink>
+    </div>
+  )}
+</nav>
 
       <button
         className="button button-exit"

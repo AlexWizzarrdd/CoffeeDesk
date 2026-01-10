@@ -1,45 +1,36 @@
+// router.tsx
 import { createBrowserRouter, Outlet, redirect } from "react-router";
 import { AuthProvider } from "@/app/providers/AuthProvider";
-import { AuthPage } from "../pages/AuthPage/AuthPage";
-import { ProfilePage } from "../pages/ProfilePage/ProfilePage";
-import { CalendarPage } from "../pages/CalendarPage/CalendarPage";
-import { Sidebar } from "../views/Sidebar/Sidebar";
-import { getToken } from "../api/tokenApi";
+import { AuthPage } from "@/pages/AuthPage/AuthPage";
+import { ProfilePage } from "@/pages/ProfilePage/ProfilePage";
+import { CalendarPage } from "@/pages/CalendarPage/CalendarPage";
 import { UsersPage } from "@/pages/UsersPage/UsersPage";
+import { NotificationsPage } from "@/pages/NotificationsPage/NotificationsPage";
+import { Sidebar } from "@/views/Sidebar/Sidebar";
+import { getToken } from "@/api/tokenApi";
 
-// eslint-disable-next-line react-refresh/only-export-components
 export default createBrowserRouter([
-    {
-        id: 'root',
-        path: '/',
-        element: <AuthProvider>
-            <div className="background-1">
-                <Sidebar />
-                <Outlet />
-            </div>
-        </AuthProvider>,
-        loader: () => {
-            if (!getToken('access') && !getToken('refresh')) {
-                throw redirect('/auth')
-            }
-        },
-        children: [
-            {
-                index: true,
-                Component: ProfilePage
-            },
-            {
-                path: 'calendar',
-                Component: CalendarPage
-            },
-            {
-                path: 'users',
-                Component: UsersPage
-            }
-        ]
+  {
+    id: "root",
+    path: "/",
+    element: (
+      <AuthProvider>
+        <div className="background-1">
+          <Sidebar />
+          <Outlet />
+        </div>
+      </AuthProvider>
+    ),
+    loader: () => {
+      if (!getToken("access") && !getToken("refresh")) throw redirect("/auth");
+      return null;
     },
-    {
-        path: '/auth',
-        element: <AuthPage />,
-    }
-])
+    children: [
+      { index: true, Component: ProfilePage },
+      { path: "calendar", Component: CalendarPage },
+      { path: "users", Component: UsersPage },
+      { path: "notifications", Component: NotificationsPage },
+    ],
+  },
+  { path: "/auth", element: <AuthPage /> },
+]);

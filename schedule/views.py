@@ -2,9 +2,6 @@ from datetime import date, datetime, timedelta
 import calendar
 
 from django.contrib.auth import get_user_model
-from django.db.models import Q
-from django.utils.timezone import make_aware
-
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -19,6 +16,9 @@ from .serializers import (
     StatsQuerySerializer,
 )
 
+# ✅ уведомления
+from notifications.models import Notification
+
 User = get_user_model()
 
 
@@ -31,14 +31,45 @@ def _month_range(yyyy_mm: str):
 
 
 def _shift_seconds(s: Shift) -> int:
-    """
-    Считает длительность смены в секундах.
-    Предполагаем: end_time > start_time в пределах дня.
-    """
     start_dt = datetime.combine(s.date, s.start_time)
     end_dt = datetime.combine(s.date, s.end_time)
     delta = end_dt - start_dt
     return max(0, int(delta.total_seconds()))
+
+
+def _actor_label(user) -> str:
+    if not user or not getattr(user, "is_authenticated", False):
+        return "Система"
+    full = f"{getattr(user, 'last_name', '')} {getattr(user, 'first_name', '')}".strip()
+    return full or getattr(user, "phone", "Пользователь")
+
+
+def _shift_payload(shift: Shift, actor) -> dict:
+    return {
+        "shift_id": shift.id,
+        "employee_id": shift.employee_id,
+        "date": str(shift.date),
+        "start_time": str(shift.start_time),
+        "end_time": str(shift.end_time),
+        "comment": shift.comment or "",
+        "actor_id": getattr(actor, "id", None),
+        "actor_label": _actor_label(actor),
+    }
+
+
+def notify(recipient, n_type: str, title: str, message: str, data: dict):
+    if not recipient:
+        return
+    # не шлём самому себе (если админ правит себе)
+    if data.get("actor_id") == recipient.id:
+        return
+    Notification.objects.create(
+        recipient=recipient,
+        type=n_type,
+        title=title,
+        message=message,
+        data=data,
+    )
 
 
 class ShiftViewSet(viewsets.ModelViewSet):
@@ -56,7 +87,6 @@ class ShiftViewSet(viewsets.ModelViewSet):
         return ShiftListSerializer
 
     def get_permissions(self):
-        # ограничиваем мутирующие методы
         if self.action in ("create", "partial_update", "update", "destroy", "generate_month"):
             return [IsAuthenticated(), IsManagerOrAdmin()]
         return [IsAuthenticated()]
@@ -69,23 +99,91 @@ class ShiftViewSet(viewsets.ModelViewSet):
         to_q = request.query_params.get("to")
 
         qs = self.get_queryset()
-
         if from_q and to_q:
             qs = qs.filter(date__gte=from_q, date__lte=to_q)
-
-        # Если захотите в будущем ограничить для employee только свои смены:
-        # if request.user.role == "employee":
-        #     qs = qs.filter(employee=request.user)
 
         ser = ShiftListSerializer(qs, many=True)
         return Response(ser.data)
 
+    # -------------------- ✅ NOTIFICATIONS HOOKS --------------------
+
+    def perform_create(self, serializer):
+        shift = serializer.save()
+        actor = self.request.user
+
+        data = _shift_payload(shift, actor)
+        notify(
+            recipient=shift.employee,
+            n_type=Notification.TYPE_SHIFT_CREATED,
+            title="Назначена смена",
+            message=f"{data['actor_label']} назначил(а) вам смену {data['date']} {data['start_time']}–{data['end_time']}",
+            data=data,
+        )
+
+    def perform_update(self, serializer):
+        # снимок "до"
+        old: Shift = self.get_object()
+        old_employee = old.employee
+        old_employee_id = old.employee_id
+        old_data = {
+            "employee_id": old.employee_id,
+            "date": str(old.date),
+            "start_time": str(old.start_time),
+            "end_time": str(old.end_time),
+            "comment": old.comment or "",
+        }
+
+        shift = serializer.save()
+        actor = self.request.user
+        new_data = _shift_payload(shift, actor)
+
+        # переназначили сотрудника?
+        reassigned = old_employee_id != shift.employee_id
+
+        if reassigned:
+            # 1) старому — “переназначено/снято”
+            notify(
+                recipient=old_employee,
+                n_type=Notification.TYPE_SHIFT_REASSIGNED,
+                title="Смена переназначена",
+                message=f"{new_data['actor_label']} переназначил(а) вашу смену {old_data['date']} {old_data['start_time']}–{old_data['end_time']}",
+                data={**new_data, "old": old_data},
+            )
+            # 2) новому — “назначено”
+            notify(
+                recipient=shift.employee,
+                n_type=Notification.TYPE_SHIFT_CREATED,
+                title="Назначена смена",
+                message=f"{new_data['actor_label']} назначил(а) вам смену {new_data['date']} {new_data['start_time']}–{new_data['end_time']}",
+                data={**new_data, "old": old_data},
+            )
+        else:
+            # обычное изменение своей смены
+            notify(
+                recipient=shift.employee,
+                n_type=Notification.TYPE_SHIFT_UPDATED,
+                title="Смена изменена",
+                message=f"{new_data['actor_label']} изменил(а) вашу смену {new_data['date']} {new_data['start_time']}–{new_data['end_time']}",
+                data={**new_data, "old": old_data},
+            )
+
+    def perform_destroy(self, instance: Shift):
+        actor = self.request.user
+        data = _shift_payload(instance, actor)
+
+        notify(
+            recipient=instance.employee,
+            n_type=Notification.TYPE_SHIFT_DELETED,
+            title="Смена отменена",
+            message=f"{data['actor_label']} отменил(а) вашу смену {data['date']} {data['start_time']}–{data['end_time']}",
+            data=data,
+        )
+        instance.delete()
+
+    # -------------------- ✅ GENERATE MONTH --------------------
+
     @action(detail=False, methods=["post"], url_path="generate-month")
     def generate_month(self, request):
-        """
-        POST /api/schedule/shifts/generate-month/
-        body: {month:"YYYY-MM", per_day:2, start_time:"09:00", end_time:"18:00", overwrite:false, include_roles:["employee","manager"], comment:"..."}
-        """
         ser = GenerateMonthSerializer(data=request.data)
         ser.is_valid(raise_exception=True)
         data = ser.validated_data
@@ -100,7 +198,6 @@ class ShiftViewSet(viewsets.ModelViewSet):
 
         start_date, end_date = _month_range(month)
 
-        # берём пользователей по ролям
         employees = list(
             User.objects.filter(role__in=include_roles, is_active=True, is_approved=True)
             .order_by("id")
@@ -111,13 +208,9 @@ class ShiftViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # overwrite: удаляем смены в диапазоне
         if overwrite:
             Shift.objects.filter(date__gte=start_date, date__lte=end_date).delete()
 
-        # 2/2 паттерн:
-        # делаем последовательность вида:
-        # [emp1, emp1, emp2, emp2, emp3, emp3, ...] и крутим по кругу.
         doubled = []
         for e in employees:
             doubled.extend([e, e])
@@ -127,10 +220,10 @@ class ShiftViewSet(viewsets.ModelViewSet):
 
         idx = 0
         day = start_date
+        actor = request.user
+
         while day <= end_date:
             todays = []
-            # набираем per_day уникальных сотрудников на день
-            # (важно: если doubled даёт одинаковых подряд — пропускаем уже выбранных на этот день)
             attempts = 0
             while len(todays) < per_day and attempts < len(doubled) * 2:
                 candidate = doubled[idx % len(doubled)]
@@ -141,12 +234,14 @@ class ShiftViewSet(viewsets.ModelViewSet):
                 todays.append(candidate)
 
             for emp in todays:
-                exists = Shift.objects.filter(employee=emp, date=day, start_time=start_time, end_time=end_time).exists()
+                exists = Shift.objects.filter(
+                    employee=emp, date=day, start_time=start_time, end_time=end_time
+                ).exists()
                 if exists and not overwrite:
                     skipped += 1
                     continue
 
-                Shift.objects.create(
+                shift = Shift.objects.create(
                     employee=emp,
                     date=day,
                     start_time=start_time,
@@ -154,6 +249,16 @@ class ShiftViewSet(viewsets.ModelViewSet):
                     comment=comment,
                 )
                 created += 1
+
+                # ✅ уведомление при автогенерации
+                payload = _shift_payload(shift, actor)
+                notify(
+                    recipient=emp,
+                    n_type=Notification.TYPE_SHIFT_CREATED,
+                    title="Назначена смена (авто)",
+                    message=f"{payload['actor_label']} назначил(а) вам смену {payload['date']} {payload['start_time']}–{payload['end_time']}",
+                    data=payload,
+                )
 
             day = day + timedelta(days=1)
 
@@ -170,9 +275,6 @@ class ShiftViewSet(viewsets.ModelViewSet):
 
 
 class StatsViewSet(viewsets.ViewSet):
-    """
-    GET /api/schedule/stats/?from=YYYY-MM-DD&to=YYYY-MM-DD[&employee_id=ID]
-    """
     permission_classes = [IsAuthenticated]
 
     def list(self, request):
@@ -184,21 +286,15 @@ class StatsViewSet(viewsets.ViewSet):
 
         employee_id = request.query_params.get("employee_id")
 
-        # базовая выборка
         shifts_qs = Shift.objects.select_related("employee").filter(date__gte=from_date, date__lte=to_date)
 
-        # правила доступа:
         role = getattr(request.user, "role", None)
-
         if role in ("manager", "admin"):
-            # можно смотреть всех, либо конкретного по employee_id
             if employee_id:
                 shifts_qs = shifts_qs.filter(employee_id=employee_id)
         else:
-            # employee видит только себя
             shifts_qs = shifts_qs.filter(employee=request.user)
 
-        # агрегация в питоне (просто и надёжно)
         per_user = {}
         for s in shifts_qs:
             uid = s.employee_id
@@ -212,17 +308,13 @@ class StatsViewSet(viewsets.ViewSet):
             per_user[uid]["shifts_count"] += 1
             per_user[uid]["total_seconds"] += _shift_seconds(s)
 
-        # доп. поля hours/minutes
         result = []
         for row in per_user.values():
             total = row["total_seconds"]
-            hours = total // 3600
-            minutes = (total % 3600) // 60
-            row["hours"] = hours
-            row["minutes"] = minutes
+            row["hours"] = total // 3600
+            row["minutes"] = (total % 3600) // 60
             result.append(row)
 
-        # сортировка по имени
         result.sort(key=lambda x: x["employee_name"])
 
         return Response(
