@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Dropdown } from "@/ui-kit/Dropdown/Dropdown";
 import { DayModal } from "@/components/Modal/DayModal";
-import type { User } from "@/view-models/user.model";
-import { getUser } from "@/services/user.service";
+import { useAuthContext } from "@/hooks/authHooks";
 
 const WEEKDAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
 
@@ -29,20 +28,11 @@ const getCurrWeek = () => {
 export const ProfilePage = () => {
     const [selectedDate, setSelectedDate] = useState<Date|null>(null);
     const [selectedAddress, setSelectedAddress] = useState<string>('Выберете адрес:')
-    const [user, setUser] = useState<User|null>(null);
-
-    useEffect(() => {
-        getUser()
-        .then(user => setUser(user))
-        .catch(error => error.message)
-    }, [])
-
-    if (!user) return <div>Loading.....</div>;
+    const { user } = useAuthContext();
 
     const week = getCurrWeek();
     const addressess = ['Пантелеевой 21', 'Пантелеевой 22', 'Пантелеевой 23', 'Пантелеевой 24', 'Пантелеевой 25', 'Пантелеевой 26'];
-    return <div className="background-1">
-        <div className="page profile-page">
+    return <div className="page profile-page">
             <main className="profile">
                 <header className="flex align-start profile__bio">
                     <img className="profile__avatar" src="/placeholder.svg" />
@@ -74,10 +64,9 @@ export const ProfilePage = () => {
                     className="profile-dropdown"
                     theme="semiDark" /></div>
                 <div className="profile__weekdays">
-                    {week.map((day, i) => <span className="profile__weekday profile__weekday--active" onClick={() => setSelectedDate(day)}>{WEEKDAYS[i]}</span>)}
+                    {week.map((day, i) => <span key={day} className="profile__weekday profile__weekday--active" onClick={() => setSelectedDate(day)}>{WEEKDAYS[i]}</span>)}
                 </div>
                 <DayModal date={selectedDate} isOpen={Boolean(selectedDate)} closeModal={() => setSelectedDate(null)} theme="round" />
             </main>
         </div>
-    </div>
 }

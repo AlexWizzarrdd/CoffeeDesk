@@ -6,15 +6,19 @@ import { handlers } from "@/mocks/handlers";
 
 const worker = setupWorker(...handlers);
 
-if (import.meta.env.DEV) {
-    worker.start();
+const prepareMsw = async () => {
+    if (import.meta.env.DEV) {
+        await worker.start();
+    }
 }
 
-const root = document.getElementById('root')
-if (root) {
-    createRoot(root).render(
-        <StrictMode>
-            <App />
-        </StrictMode>
-    )
-}
+prepareMsw().then(() => {
+    const root = document.getElementById('root')
+    if (root) {
+        createRoot(root).render(
+            <StrictMode>
+                <App />
+            </StrictMode>
+        )
+    }
+})

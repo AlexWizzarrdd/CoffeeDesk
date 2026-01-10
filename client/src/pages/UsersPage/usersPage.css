@@ -1,0 +1,52 @@
+.users-page {
+    padding: 60px 65px min(65px, 5vw) calc(var(--nav-offset) + min(56px, 5vw));
+}
+
+.users {
+    padding: 15px;
+}
+
+.users__user {
+    padding: 8px;
+    margin-top: 8px;
+    border-top: 1px solid var(--semi-dark);
+}
+
+.users__user:first-child {
+    border-top: none;
+}
+
+.users__user-info {
+    flex: 2;
+    font-size: 0.9rem;
+}
+
+.users__user-name {
+    margin-bottom: 6px;
+    font-size: 1.2rem;
+}
+
+.users__button {
+    padding: 15px min(20px, 4vw);
+}
+
+.users__button--approved {
+    background-color: var(--secondary-color);
+}
+
+@media screen and (max-width: 1025px) {
+    .users-page {
+        padding-left: 65px;
+        padding-bottom: 120px;
+    }
+}
+
+@media screen and (max-width: 556px) {
+    .users__user {
+        flex-direction: column;
+    }
+
+    .users__button {
+        margin-top: 8px;
+    }
+}

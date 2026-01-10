@@ -6,7 +6,7 @@
 
 .profile-page {
     padding-left: calc(var(--nav-offset) + min(56px, 5vw));
-    padding-bottom: min(65px, 95vw);
+    padding-bottom: 65px;
     overflow: auto;
 }
 
@@ -61,7 +61,7 @@
 .profile__weekdays {
     display: flex;
     justify-content: center;
-    margin-top: 33.5px;
+    margin-top: min(4vw, 1.675rem);
     font-size: clamp(0.6px, 5vw, 1.85rem);
 }
 

@@ -32,6 +32,7 @@
     max-height: 0;
     width: 100%;
     opacity: 0;
+    border: 1px solid var(--semi-dark);
     transition: opacity .6s ease, max-height .6s ease;
     scrollbar-width: none;
     background-color: var(--primary-color);

@@ -16,10 +16,10 @@ class LoginModel {
     }
 
     setPhone = (payload: string) => {
-        if (payload.length <= 2) {
+        if (payload === '+') {
             this.phone = '';
         } else {
-            this.phone = this.phone ? payload : `+7${payload}`;
+            this.phone = payload.startsWith('+7') ? payload : `+7${payload}`;
         }
     }
 
@@ -98,7 +98,7 @@ class SignupModel {
         if (payload === '+') {
             this.phone = '';
         } else {
-            this.phone = this.phone ? payload : `+7${payload}`;
+            this.phone = payload.startsWith('+7') ? payload : `+7${payload}`;
         }
     }
 

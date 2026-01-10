@@ -5,3 +5,9 @@ export const getUser = () => {
         method: "GET"
     })
 }
+
+export const getUsers = () => {
+    return apiFetch('/api/manager/users/', {
+        method: 'GET'
+    })
+}

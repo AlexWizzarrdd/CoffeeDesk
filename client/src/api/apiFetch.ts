@@ -7,7 +7,7 @@ const fetchWithPause = (url: string, time: number, tryCount: number) => {
             setTimeout(() => fetchWithPause(url, time * 2, tryCount - 1), time)
         }
         else {
-            return 'Error!'
+            throw Error('Error!');
         }
     })
 }
@@ -26,7 +26,8 @@ export const apiFetch = (input: RequestInfo, init: RequestInit) => {
             fetch('/api/auth/token/refresh/')
             .then(resp => {
                 if (resp.ok) {
-                    setToken('access', String(resp.body));
+                    resp.json().then(token => setToken('access', token));
+                    return apiFetch(input, init);
                 }
                 else {
                     window.location.href = '/auth';
@@ -34,7 +35,7 @@ export const apiFetch = (input: RequestInfo, init: RequestInit) => {
                 }
             })
             .catch(error => {
-                return 'Network Error!';
+                throw Error('Network Error!');
             })
         }
         else {
@@ -42,6 +43,6 @@ export const apiFetch = (input: RequestInfo, init: RequestInit) => {
         }
     })
     .catch(error => {
-        return 'Network Error!';
+        throw Error('Network Error!');
     })
 }
