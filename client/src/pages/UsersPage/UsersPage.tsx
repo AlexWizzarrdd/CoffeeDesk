@@ -1,30 +1,75 @@
-import { getUsers } from "@/services/user.service";
+import { approveUser, getUsers } from "@/services/user.service";
 import { Button } from "@/ui-kit/Button/Button";
 import type { User } from "@/view-models/user.model";
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
+import { useAuthContext } from "@/hooks/authHooks";
+import { ErrorPage } from "@/pages/ErrorPage/ErrorPage";
 
 export const UsersPage = () => {
-    const [users, setUsers] = useState<User[]>([]);
+  const { user: currentUser } = useAuthContext();
+  const isManagerLike =
+    currentUser.role === "manager" || currentUser.role === "admin";
 
-    useEffect(() => {
-        getUsers()
-        .then(users => setUsers(users))
-    }, [])
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-    return <div className="page users-page">
-            <main className="wrapper">
-                <ol className="users">
-                    {users.map((user) => {
-                        return <li className="users__user flex justify-between">
-                            <div className="users__user-info">
-                                <p className="users__user-name">{user.first_name} {user.last_name}</p>
-                                <p>{user.email}</p>
-                                <p>{user.phone}</p>
-                            </div>
-                            {user.is_approved ? <Button classess="users__button users__button--approved">Подтверждена</Button> : <Button classess="users__button">Подтвердить</Button>}
-                        </li>
-                    })}
-                </ol>
-            </main>
-        </div>
-}
+  const loadUsers = () => {
+    setLoading(true);
+    setError("");
+    getUsers()
+      .then((data) => setUsers(data))
+      .catch(() => setError("Не удалось загрузить пользователей"))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    if (isManagerLike) loadUsers();
+  }, []);
+
+  if (!isManagerLike) {
+    return <ErrorPage error="Нет доступа" />;
+  }
+
+  if (loading) return <ErrorPage error="Грузим пользователей..." />;
+  if (error) return <ErrorPage error={error} />;
+
+  const onApprove = async (id: number) => {
+    try {
+      await approveUser(id);
+      loadUsers();
+    } catch {
+      setError("Не удалось подтвердить пользователя");
+    }
+  };
+
+  return (
+    <div className="page users-page">
+      <main className="wrapper">
+        <ol className="users">
+          {users.map((u) => (
+            <li key={u.id} className="users__user flex justify-between">
+              <div className="users__user-info">
+                <p className="users__user-name">
+                  {u.last_name} {u.first_name} {u.surname}
+                </p>
+                <p>{u.phone}</p>
+                <p>Роль: {u.role}</p>
+              </div>
+
+              {u.is_approved ? (
+                <Button classess="users__button users__button--approved">
+                  Подтверждена
+                </Button>
+              ) : (
+                <Button classess="users__button" onClick={() => onApprove(u.id)}>
+                  Подтвердить
+                </Button>
+              )}
+            </li>
+          ))}
+        </ol>
+      </main>
+    </div>
+  );
+};
