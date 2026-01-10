@@ -1,15 +1,24 @@
+// client/src/views/Calendar/Calendar.tsx
 import React, { useEffect, useMemo, useState } from "react";
 import { Dropdown } from "@/ui-kit/Dropdown/Dropdown";
 import { YearDropdown } from "./components/YearDropdown";
 import { DayModal } from "@/components/Modal/DayModal";
 import ArrowIcon from "@/assets/icons/arrow.svg?react";
-import { getShifts, type Shift } from "@/services/shift.service";
+import { getShifts, type Shift, generateMonthShifts } from "@/services/schedule.service";
 import { useAuthContext } from "@/hooks/authHooks";
+import { Button } from "@/ui-kit/Button/Button";
 
 const MONTHS = [
   "Январь","Февраль","Март","Апрель","Май","Июнь",
   "Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь",
 ];
+
+const toISODate = (d: Date) => {
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+};
 
 const createDays = (month: number, year: number) => {
   const firstDay = new Date(year, month, 1);
@@ -30,6 +39,7 @@ const createDays = (month: number, year: number) => {
       curr.setDate(curr.getDate() + 1);
     }
   }
+
   return days;
 };
 
@@ -52,14 +62,10 @@ const nextMonthHandler = (
   setMonth(nextMonth);
 };
 
-const toISODate = (d: Date) => {
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd}`;
-};
-
 export const Calendar = () => {
+  const { user } = useAuthContext();
+  const isManagerLike = user.role === "manager" || user.role === "admin";
+
   const date = new Date();
   const [month, setMonth] = useState<number>(date.getMonth());
   const [year, setYear] = useState<number>(date.getFullYear());
@@ -68,45 +74,64 @@ export const Calendar = () => {
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const { user } = useAuthContext();
-  const isManagerLike = user.role === "manager" || user.role === "admin";
-
   const days = useMemo(() => createDays(month, year), [month, year]);
 
+  // диапазон для загрузки смен = от первого дня грида до последнего
   const range = useMemo(() => {
-    // Берем диапазон: от первого дня сетки до последнего
-    const from = new Date(days[0]);
-    const to = new Date(days[days.length - 1]);
-    return { fromISO: toISODate(from), toISO: toISODate(to) };
-  }, [days]);
+    const from = days[0] ? toISODate(days[0]) : toISODate(new Date(year, month, 1));
+    const to = days[days.length - 1]
+      ? toISODate(days[days.length - 1])
+      : toISODate(new Date(year, month + 1, 0));
+    return { from, to };
+  }, [days, month, year]);
 
-  const reloadShifts = () => {
-    setLoading(true);
-    // employee получит только свои смены (бэк так решит),
-    // manager/admin может позже выбирать user_id (сейчас оставим без фильтра)
-    getShifts(range.fromISO, range.toISO)
-      .then((data) => setShifts(Array.isArray(data) ? data : []))
-      .finally(() => setLoading(false));
+  const shiftsByDate = useMemo(() => {
+    const map = new Map<string, Shift[]>();
+    for (const s of shifts) {
+      const key = s.date;
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(s);
+    }
+    return map;
+  }, [shifts]);
+
+  // ✅ подсветка: есть ли смена у текущего пользователя в этот день
+  const hasMyShift = (isoDate: string) => {
+    const dayShifts = shiftsByDate.get(isoDate) || [];
+    return dayShifts.some((s) => s.employee_id === user.id);
+  };
+
+  const selectedISO = selectedDate ? toISODate(selectedDate) : null;
+  const selectedDayShifts = selectedISO ? shiftsByDate.get(selectedISO) || [] : [];
+
+  const reload = async () => {
+    try {
+      setLoading(true);
+      const data = await getShifts(range.from, range.to);
+      setShifts(data);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    reloadShifts();
+    reload();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [range.fromISO, range.toISO]);
+  }, [range.from, range.to]);
 
   useEffect(() => {
     const dateHandler = (event: KeyboardEvent) => {
       if (event.code === "ArrowLeft") {
-        setMonth((prevMonth) => {
-          const nextMonth = getNextMonth(prevMonth, -1);
-          if (nextMonth === 11 && prevMonth === 0) setYear((s) => s - 1);
-          return nextMonth;
+        setMonth((prev) => {
+          const next = getNextMonth(prev, -1);
+          if (next === 11 && prev === 0) setYear((s) => s - 1);
+          return next;
         });
       } else if (event.code === "ArrowRight") {
-        setMonth((prevMonth) => {
-          const nextMonth = getNextMonth(prevMonth, 1);
-          if (nextMonth === 0 && prevMonth === 11) setYear((s) => s + 1);
-          return nextMonth;
+        setMonth((prev) => {
+          const next = getNextMonth(prev, 1);
+          if (next === 0 && prev === 11) setYear((s) => s + 1);
+          return next;
         });
       }
     };
@@ -114,16 +139,38 @@ export const Calendar = () => {
     return () => document.removeEventListener("keydown", dateHandler);
   }, []);
 
-  // Быстрый индекс: "YYYY-MM-DD" -> смены дня
-  const shiftsByDay = useMemo(() => {
-    const map = new Map<string, Shift[]>();
-    for (const s of shifts) {
-      const key = s.start_at.slice(0, 10); // "YYYY-MM-DD"
-      if (!map.has(key)) map.set(key, []);
-      map.get(key)!.push(s);
+  const generateMonth = async () => {
+    const monthStr = `${year}-${String(month + 1).padStart(2, "0")}`;
+
+    const ok = window.confirm(
+      `Автоматически распределить смены 2/2 на ${MONTHS[month]} ${year}?\n\n` +
+        `• роли: employee + manager\n` +
+        `• по 2 человека в день\n` +
+        `• смена 09:00–18:00\n` +
+        `• существующие смены НЕ перезаписываем`
+    );
+
+    if (!ok) return;
+
+    try {
+      setLoading(true);
+      await generateMonthShifts({
+        month: monthStr,
+        per_day: 2,
+        start_time: "09:00",
+        end_time: "18:00",
+        include_roles: ["employee", "manager"],
+        overwrite: false,
+        comment: "Автогенерация 2/2",
+      });
+      await reload();
+      alert("Смены успешно сгенерированы");
+    } catch (e: any) {
+      alert(e?.message || "Ошибка автогенерации");
+    } finally {
+      setLoading(false);
     }
-    return map;
-  }, [shifts]);
+  };
 
   return (
     <div className="wrapper calendar-wrapper flex">
@@ -146,10 +193,16 @@ export const Calendar = () => {
             }}
             selectedItemClass="calendar__header-month"
           />
+
           <YearDropdown year={year} setYear={setYear} />
-          <span style={{ marginLeft: "auto", opacity: 0.7, fontSize: 12 }}>
-            {loading ? "Загрузка смен..." : isManagerLike ? "Менеджерский режим" : "Мой график"}
-          </span>
+
+          {isManagerLike ? (
+            <Button classess="button-sm" onClick={generateMonth} disabled={loading}>
+              ⚙️ Автораспределить
+            </Button>
+          ) : null}
+
+          {loading ? <span style={{ marginLeft: 12 }}>⏳</span> : null}
         </header>
 
         <div className="calendar__weekdays flex">
@@ -164,31 +217,29 @@ export const Calendar = () => {
 
         <div className="calendar__days">
           {days.map((day, i) => {
-            const key = toISODate(day);
-            const dayShifts = shiftsByDay.get(key) || [];
+            const iso = toISODate(day);
+            const count = shiftsByDate.get(iso)?.length || 0;
+
+            const inCurrentMonth = day.getMonth() === month && day.getFullYear() === year;
+            const myShift = hasMyShift(iso);
+
+            const dayClass = [
+              "calendar__day",
+              inCurrentMonth ? "" : "calendar__day--other-month",
+              myShift ? "calendar__day--work" : "calendar__day--free",
+            ]
+              .filter(Boolean)
+              .join(" ");
 
             return (
               <div
-                key={`${day}${i}`}
-                className="calendar__day"
+                key={`${iso}-${i}`}
+                className={dayClass}
                 onClick={() => setSelectedDate(day)}
               >
-                <div>{day.getDate()}</div>
-
-                {/* Мини-отображение смен */}
-                {dayShifts.length ? (
-                  <div style={{ marginTop: 6, fontSize: 10, opacity: 0.9 }}>
-                    {dayShifts.slice(0, 2).map((s) => {
-                      const st = s.start_at.slice(11, 16);
-                      const en = s.end_at.slice(11, 16);
-                      return (
-                        <div key={s.id}>
-                          {st}-{en} {s.comment ? `• ${s.comment}` : ""}
-                        </div>
-                      );
-                    })}
-                    {dayShifts.length > 2 ? <div>+ ещё {dayShifts.length - 2}</div> : null}
-                  </div>
+                {day.getDate()}
+                {count > 0 ? (
+                  <div style={{ fontSize: 12, marginTop: 4 }}>смен: {count}</div>
                 ) : null}
               </div>
             );
@@ -198,8 +249,8 @@ export const Calendar = () => {
             date={selectedDate}
             isOpen={Boolean(selectedDate)}
             closeModal={() => setSelectedDate(null)}
-            // важное: добавим callback чтобы после сохранения смены обновить календарь
-            onSaved={() => reloadShifts()}
+            shifts={selectedDayShifts}
+            onCreated={() => reload()}
           />
         </div>
       </div>

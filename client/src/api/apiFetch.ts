@@ -79,12 +79,32 @@ export async function apiFetch(input: RequestInfo, init: RequestInit = {}) {
     data = await resp.text().catch(() => null);
   }
 
-  if (!resp.ok) {
-    const message =
-      (data && typeof data === "object" && "detail" in data && (data as any).detail) ||
-      "Ошибка запроса";
-    throw new Error(message);
+if (!resp.ok) {
+  let message = "Ошибка запроса";
+
+  if (data) {
+    if (typeof data === "string") {
+      message = data;
+    } else if (typeof data === "object") {
+      // DRF часто шлёт {"detail": "..."}
+      if ("detail" in data && (data as any).detail) {
+        message = String((data as any).detail);
+      } else {
+        // DRF validation errors: {"from":["..."],"to":["..."]}
+        try {
+          const flat = Object.entries(data as Record<string, any>)
+            .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : String(v)}`)
+            .join(" | ");
+          if (flat) message = flat;
+        } catch {
+          // ignore
+        }
+      }
+    }
   }
+
+  throw new Error(message);
+}
 
   return data;
 }

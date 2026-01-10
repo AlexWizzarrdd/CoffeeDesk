@@ -75,3 +75,17 @@
 .calendar .dropdown__items {
     z-index: 99;
 }
+.calendar__day--work {
+  background: rgba(46, 204, 113, 0.22);
+  border: 1px solid rgba(46, 204, 113, 0.55);
+}
+
+.calendar__day--free {
+  background: rgba(231, 76, 60, 0.14);
+  border: 1px solid rgba(231, 76, 60, 0.35);
+}
+
+/* опционально: дни не текущего месяца приглушаем */
+.calendar__day--other-month {
+  opacity: 0.5;
+}

@@ -1,3 +1,4 @@
+// client/src/pages/UsersPage/UsersPage.tsx
 import {
   activateUser,
   approveUser,
@@ -8,9 +9,33 @@ import {
 } from "@/services/user.service";
 import { Button } from "@/ui-kit/Button/Button";
 import type { User } from "@/view-models/user.model";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuthContext } from "@/hooks/authHooks";
 import { ErrorPage } from "@/pages/ErrorPage/ErrorPage";
+import { getStats, type StatsResponse } from "@/services/schedule.service";
+
+const toISO = (d: Date) => {
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+};
+
+const monthFirst = (d: Date) => new Date(d.getFullYear(), d.getMonth(), 1);
+const monthLast = (d: Date) => new Date(d.getFullYear(), d.getMonth() + 1, 0);
+const yesterday = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate() - 1);
+
+const formatHM = (hours: number, minutes: number) => `${hours}ч ${minutes}м`;
+
+type HM = { hours: number; minutes: number };
+
+const buildHMMap = (stats: StatsResponse | null) => {
+  const m = new Map<number, HM>();
+  for (const item of stats?.items || []) {
+    m.set(item.employee_id, { hours: item.hours, minutes: item.minutes });
+  }
+  return m;
+};
 
 export const UsersPage = () => {
   const { user: currentUser } = useAuthContext();
@@ -23,13 +48,58 @@ export const UsersPage = () => {
   const [error, setError] = useState("");
   const [busyId, setBusyId] = useState<number | null>(null);
 
-  const loadUsers = () => {
+  // ✅ два набора stats: план и факт
+  const [plannedStats, setPlannedStats] = useState<StatsResponse | null>(null);
+  const [workedStats, setWorkedStats] = useState<StatsResponse | null>(null);
+  const [statsLoading, setStatsLoading] = useState(false);
+
+  const now = useMemo(() => new Date(), []);
+  const fromMonth = useMemo(() => toISO(monthFirst(now)), [now]);
+  const toMonth = useMemo(() => toISO(monthLast(now)), [now]);
+
+  // факт: 1..вчера (если вчера ещё в этом месяце, иначе 0)
+  const toWorked = useMemo(() => {
+    const y = yesterday(now);
+    // если сегодня 1-е число — вчера в прошлом месяце -> фактически 0
+    if (y < monthFirst(now)) return null;
+    return toISO(y);
+  }, [now]);
+
+  const plannedMap = useMemo(() => buildHMMap(plannedStats), [plannedStats]);
+  const workedMap = useMemo(() => buildHMMap(workedStats), [workedStats]);
+
+  const loadUsers = async () => {
     setLoading(true);
     setError("");
-    getUsers()
-      .then((data) => setUsers(data))
-      .catch((e: any) => setError(e?.message || "Не удалось загрузить пользователей"))
-      .finally(() => setLoading(false));
+    setStatsLoading(true);
+
+    try {
+      const data = await getUsers();
+      setUsers(data);
+
+      // 1) план на весь месяц
+      const planned = await getStats(fromMonth, toMonth);
+      setPlannedStats(planned);
+
+      // 2) факт до вчера
+      if (toWorked) {
+        const worked = await getStats(fromMonth, toWorked);
+        setWorkedStats(worked);
+      } else {
+        // сегодня 1-е — факта нет
+        setWorkedStats({
+          from: fromMonth,
+          to: fromMonth,
+          count_users: 0,
+          items: [],
+        });
+      }
+    } catch (e: any) {
+      setError(e?.message || "Не удалось загрузить пользователей");
+    } finally {
+      setLoading(false);
+      setStatsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -85,7 +155,6 @@ export const UsersPage = () => {
     }
   };
 
-  // NEW: смена роли
   const onMakeManager = async (id: number) => {
     try {
       setBusyId(id);
@@ -142,10 +211,9 @@ export const UsersPage = () => {
     );
   };
 
-  // NEW: кнопки роли (только админ)
   const renderRoleAction = (u: User) => {
     if (!isAdmin) return null;
-    if (u.id === currentUser.id) return null; // себя не трогаем
+    if (u.id === currentUser.id) return null;
 
     const disabled = busyId === u.id;
 
@@ -165,16 +233,26 @@ export const UsersPage = () => {
       );
     }
 
-    // admin-ов не меняем (и так)
     return null;
   };
 
   return (
     <div className="page users-page">
       <main className="wrapper">
+        <div style={{ marginBottom: 12, opacity: 0.7 }}>
+          План: {fromMonth} — {toMonth} / Факт: {fromMonth} — {toWorked || "—"}{" "}
+          {statsLoading ? "⏳" : ""}
+        </div>
+
         <ol className="users">
           {users.map((u) => {
             const disabled = busyId === u.id;
+
+            const worked = workedMap.get(u.id) || { hours: 0, minutes: 0 };
+            const planned = plannedMap.get(u.id) || { hours: 0, minutes: 0 };
+
+            const workedLabel = formatHM(worked.hours, worked.minutes);
+            const plannedLabel = formatHM(planned.hours, planned.minutes);
 
             return (
               <li key={u.id} className="users__user flex justify-between">
@@ -187,6 +265,11 @@ export const UsersPage = () => {
                   <p>
                     Статус: {u.is_active ? "active" : "inactive"} /{" "}
                     {u.is_approved ? "approved" : "pending"}
+                  </p>
+
+                  {/* ✅ факт / план */}
+                  <p>
+                    Отработано: <b>{workedLabel}</b> из <b>{plannedLabel}</b>
                   </p>
                 </div>
 
