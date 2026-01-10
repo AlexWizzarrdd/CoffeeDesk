@@ -4,22 +4,30 @@ import autoprefixer from 'autoprefixer';
 import path from 'path';
 import svgr from 'vite-plugin-svgr';
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    react(),
-    svgr()
-  ],
+  plugins: [react(), svgr()],
+
+  server: {
+    port: 5173,
+    strictPort: true,
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
+
   css: {
     postcss: {
-      plugins: [
-        autoprefixer
-      ]
-    }
+      plugins: [autoprefixer],
+    },
   },
+
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src')
-    }
-  }
-})
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+});

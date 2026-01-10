@@ -2,7 +2,7 @@ import { makeAutoObservable, runInAction } from 'mobx';
 import type { FormEvent } from 'react';
 import { isValidPhone, isValidName } from '../utils/validation';
 import { logIn, signUp } from '../services/auth.service';
-import { setToken } from '../api/tokenApi';
+import { setToken, clearTokens } from '../api/tokenApi';
 
 class LoginModel {
     phone: string = '';
@@ -44,7 +44,6 @@ class LoginModel {
 
         logIn({ phone: this.phone, password: this.password })
             .then((tokens) => {
-                // сохраняем токены
                 setToken(tokens.access, 'access');
                 setToken(tokens.refresh, 'refresh');
 
@@ -55,6 +54,7 @@ class LoginModel {
                 runInAction(() => {
                     this.networkError = 'Неверный телефон или пароль';
                 });
+                clearTokens();
             });
     }
 }

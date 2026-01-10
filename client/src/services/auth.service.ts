@@ -1,49 +1,67 @@
-import { getToken } from "../api/tokenApi"
+import { setTokens, clearTokens, getToken } from "@/api/tokenApi";
 
 type LoginData = {
-    phone: string,
-    password: string
-}
+  phone: string;
+  password: string;
+};
 
 type SignupData = {
-    "password": string,
-    "first_name": string,
-    "last_name": string,
-    "phone": string
+  password: string;
+  first_name: string;
+  last_name: string;
+  surname: string;
+  phone: string;
+};
+
+export async function logIn(data: LoginData) {
+  const resp = await fetch("/api/auth/login/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+  const payload = await resp.json().catch(() => ({}));
+
+  if (!resp.ok) {
+    throw new Error(payload?.detail || "Неверный телефон или пароль");
+  }
+
+  if (!payload?.access || !payload?.refresh) {
+    throw new Error("Сервер не вернул токены");
+  }
+
+  setTokens(payload.access, payload.refresh);
+  return payload;
 }
 
-export const logIn = (data: LoginData) => {
-    const url = '/api/auth/login/';
-    return fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
-    }).then(resp => {
-        if (!resp.ok) {
-            throw new Error('Network error!');
-        }
-        return resp.json();
-    });
+export async function signUp(data: SignupData) {
+  const resp = await fetch("/api/auth/register/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+  const payload = await resp.json().catch(() => ({}));
+
+  if (!resp.ok) {
+    // DRF обычно отдаёт ошибки полей объектом
+    throw payload;
+  }
+
+  return payload;
 }
 
-export const signUp = (data: SignupData) => {
-    const url = '/api/auth/register/';
-    return fetch(url, {
-        method: 'POST',
-        body: JSON.stringify(data)
-    })
-    .then(resp => resp.json());
-}
+export async function logout() {
+  const refresh = getToken("refresh");
 
-export const refreshAuth = () => {
-    const url = '/api/auth/token/refresh/';
-    const token = getToken('access');
-    return fetch(url, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    });
+  // если у тебя на бэке есть /api/auth/logout/
+  if (refresh) {
+    await fetch("/api/auth/logout/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh }),
+    }).catch(() => {});
+  }
+
+  clearTokens();
 }

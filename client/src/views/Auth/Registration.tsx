@@ -13,11 +13,14 @@ export const Registration = observer(({ setIsLogin }: RegistrationProp) => {
         <form className="flex flex-column flex-center w-full" onSubmit={signupModel.registrateUser}>
             <FormField id="firstName" value={signupModel.firstName} placeholder="Имя" cb={signupModel.setFirstName} error={signupModel.firstNameError} />
             <FormField id="lastName" value={signupModel.lastName} placeholder="Фамилия" cb={signupModel.setLastName} error={signupModel.lastNameError} />
+            <FormField id="surname" value={signupModel.surname} placeholder="Отчество" cb={signupModel.setSurname} error={signupModel.surnameError} />
             <FormField id="phone" type="tel" value={signupModel.phone} placeholder="Номер телефона" cb={signupModel.setPhone} error={signupModel.phoneError} />
             <FormField id="password" type="password" value={signupModel.password} placeholder="Пароль" cb={signupModel.setPassword} error={signupModel.passwordError} />
             <FormField id="confirmedPassword" type="password" value={signupModel.confirmedPassword} placeholder="Подтвердите пароль" cb={signupModel.setConfirmedPassword} error={signupModel.confirmedPasswordError} />
-            <button className="auth-toggle" onClick={() => setIsLogin(true)}>Уже есть аккаунта?</button>
-            <Button classess="button-sm" type="submit">Войти</Button>
+            <button type="button" className="auth-toggle" onClick={() => setIsLogin(true)}>
+                Уже есть аккаунт?
+            </button>
+            <Button classess="button-sm" type="submit">Зарегистрироваться</Button>
         </form>
     </div>
 })

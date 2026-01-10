@@ -41,10 +41,5 @@ export default createBrowserRouter([
     {
         path: '/auth',
         element: <AuthPage />,
-        loader: () => {
-            if (getToken('access')) {
-                throw redirect('/')
-            }
-        }
     }
 ])
