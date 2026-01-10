@@ -35,33 +35,27 @@ class LoginModel {
 
     loginUser = (event: FormEvent) => {
         event.preventDefault();
-
         this.clearErrors();
-        
+
         if (!isValidPhone(this.phone)) {
             this.phoneError = 'Неверный формат (+7XXXXXXXXXX)';
             return;
         }
 
-        const response = logIn({
-            phone: this.phone,
-            password: this.password
-        });
-        response
-        .then(tokens => {
-            setToken(tokens['access'], 'access');
-            setToken(tokens['refresh'], 'refresh');
-        })
-        .catch(error => {
-            runInAction(() => {
-                this.networkError = error.message;
+        logIn({ phone: this.phone, password: this.password })
+            .then((tokens) => {
+                // сохраняем токены
+                setToken(tokens.access, 'access');
+                setToken(tokens.refresh, 'refresh');
+
+                // редирект только ПОСЛЕ успешного логина
+                window.location.href = '/';
             })
-        })
-        
-        if (!this.networkError) {
-            //redirect('/')
-            window.location.href = '/';
-        }
+            .catch(() => {
+                runInAction(() => {
+                    this.networkError = 'Неверный телефон или пароль';
+                });
+            });
     }
 }
 
