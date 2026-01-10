@@ -4,9 +4,9 @@ type ButtonProps = ComponentPropsWithoutRef<"button"> & {
   classess?: string;
 };
 
-export const Button = ({ children, classess = "", ...props }: ButtonProps) => {
+export const Button = ({ children, classess = "", type = "button", ...rest }: ButtonProps) => {
   return (
-    <button className={`button ${classess}`} {...props}>
+    <button type={type} className={`button ${classess}`} {...rest}>
       {children}
     </button>
   );

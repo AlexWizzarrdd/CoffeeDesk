@@ -31,6 +31,7 @@ const calculateMaskParams = (
   if (wrapperElement.querySelector(".active")) {
     wrapperLeft = wrapper.left;
   }
+
   const cx = wrapperLeft - mask.left + wrapper.width / 2;
   const cy = wrapper.top - mask.top + wrapper.height / 2;
   const r = (Math.max(wrapper.width, wrapper.height) / 2) * 1.25;
@@ -45,8 +46,10 @@ const linkHandler = (
   if (ev.target === ev.currentTarget) return;
   const el = ev.currentTarget;
   if (el.querySelector(".active")) return;
+
   circleRef.current?.setAttribute("cx", "90");
   circleRef.current?.setAttribute("fill", "white");
+
   const maskParams = calculateMaskParams(el, circleRef);
   setTimeout(() => updateMaskPosition(circleRef, maskParams), 350);
 };
@@ -56,6 +59,7 @@ export const Sidebar = () => {
   const { user } = useAuthContext();
   const navigate = useNavigate();
 
+  // ✅ manager И admin видят Users
   const isManagerLike = user.role === "manager" || user.role === "admin";
 
   useEffect(() => {
@@ -90,7 +94,6 @@ export const Sidebar = () => {
 
       <nav className="nav">
         <div
-          key={"profileLink"}
           className="nav-link-wrapper"
           onMouseDown={(ev) => linkHandler(ev, circleRef)}
         >
@@ -100,7 +103,6 @@ export const Sidebar = () => {
         </div>
 
         <div
-          key={"calendarLink"}
           className="nav-link-wrapper"
           onMouseDown={(ev) => linkHandler(ev, circleRef)}
         >
@@ -111,7 +113,6 @@ export const Sidebar = () => {
 
         {isManagerLike && (
           <div
-            key={"usersLink"}
             className="nav-link-wrapper"
             onMouseDown={(ev) => linkHandler(ev, circleRef)}
           >

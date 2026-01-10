@@ -7,9 +7,7 @@ let refreshPromise: Promise<string> | null = null;
 
 async function refreshAccessToken(): Promise<string> {
   const refresh = getToken("refresh");
-  if (!refresh) {
-    throw new Error("No refresh token");
-  }
+  if (!refresh) throw new Error("No refresh token");
 
   const resp = await fetch(API_REFRESH_URL, {
     method: "POST",
@@ -32,11 +30,13 @@ export async function apiFetch(input: RequestInfo, init: RequestInit = {}) {
 
   const doFetch = (token?: string) => {
     const headers = new Headers(init.headers || {});
-    headers.set("Content-Type", headers.get("Content-Type") || "application/json");
 
-    if (token) {
-      headers.set("Authorization", `Bearer ${token}`);
+    // Content-Type ставим только если он реально нужен (если есть body)
+    if (init.body && !headers.get("Content-Type")) {
+      headers.set("Content-Type", "application/json");
     }
+
+    if (token) headers.set("Authorization", `Bearer ${token}`);
 
     return fetch(input, { ...init, headers });
   };
@@ -44,7 +44,7 @@ export async function apiFetch(input: RequestInfo, init: RequestInit = {}) {
   // 1) первая попытка
   let resp = await doFetch(access || undefined);
 
-  // 2) если токен протух — пробуем refresh и повторяем запрос
+  // 2) если 401 — пытаемся refresh и повторяем
   if (resp.status === 401) {
     try {
       if (!isRefreshing) {
@@ -64,14 +64,22 @@ export async function apiFetch(input: RequestInfo, init: RequestInit = {}) {
     }
   }
 
-  // 3) parse body
+  // 3) 204 No Content — просто возвращаем null
+  if (resp.status === 204) {
+    return null;
+  }
+
+  // 4) parse body (может быть пустым)
   const contentType = resp.headers.get("content-type") || "";
-  const data = contentType.includes("application/json")
-    ? await resp.json().catch(() => null)
-    : await resp.text().catch(() => null);
+  let data: any = null;
+
+  if (contentType.includes("application/json")) {
+    data = await resp.json().catch(() => null);
+  } else {
+    data = await resp.text().catch(() => null);
+  }
 
   if (!resp.ok) {
-    // DRF обычно отдаёт {detail: "..."}
     const message =
       (data && typeof data === "object" && "detail" in data && (data as any).detail) ||
       "Ошибка запроса";
