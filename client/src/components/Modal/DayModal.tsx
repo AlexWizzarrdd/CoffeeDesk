@@ -1,35 +1,56 @@
-import { Activity, useEffect, useRef } from "react";
+import { Activity } from "react";
+import { useAuthContext } from "@/hooks/authHooks";
 
 type DayModalProps = {
-    date: Date|null,
-    isOpen: boolean,
-    closeModal: () => void,
-    data?: number|null,
-    theme?: string
-}
+  date: Date | null;
+  isOpen: boolean;
+  closeModal: () => void;
+};
 
-const MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+const MONTHS = [
+  "января",
+  "февраля",
+  "марта",
+  "апреля",
+  "мая",
+  "июня",
+  "июля",
+  "августа",
+  "сентября",
+  "октября",
+  "ноября",
+  "декабря",
+];
 
-const themes: { [key: string]: string } = {
-    'round': 'modal--round'
-}
+export const DayModal = ({ date, isOpen, closeModal }: DayModalProps) => {
+  const { user } = useAuthContext();
 
-export const DayModal = ({ date, data, isOpen, closeModal, theme }: DayModalProps) => {
-    const currModal = useRef(null);
-    useEffect(() => {
-        const controller = new AbortController();
+  if (!isOpen || !date) return null;
 
-        document.addEventListener('mousedown', (event) => {
-            if (currModal.current !== event.target) {
-                closeModal();
-            }
-        }, { signal: controller.signal });
-        return () => controller.abort()
-    })
-    return <Activity mode={isOpen ? 'visible' : 'hidden'}>
-        <div className={theme ? `modal ${themes[theme]}` : "modal"} ref={currModal}>
-            <div className="modal__header text-center"><span className="modal__day">{date?.getDate()}</span> {MONTHS[date?.getMonth() || 0]}</div>
-            <button className="modal__exit" onClick={() => closeModal()}>X</button>
+  const isManagerLike = user.role === "manager" || user.role === "admin";
+
+  return (
+    <Activity mode="visible">
+      <div className="modal modal--round">
+        <button className="modal__exit" onClick={closeModal}>
+          ✕
+        </button>
+
+        <div className="modal__header text-center">
+          <span className="modal__day">{date.getDate()}</span>{" "}
+          {MONTHS[date.getMonth()]} {date.getFullYear()}
         </div>
+
+        <div className="modal__content">
+          <p className="text-muted">Смен пока нет</p>
+
+          {isManagerLike && (
+            <button className="button button-primary mt-12">
+              ➕ Добавить смену
+            </button>
+          )}
+        </div>
+      </div>
     </Activity>
-}
+  );
+};
