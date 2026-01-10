@@ -1,0 +1,17 @@
+.button {
+    padding: 15px min(78px, 15vw);
+    border-radius: 16px;
+    background-color: var(--primary-color);
+}
+
+.button-sm {
+    max-width: min-content;
+}
+
+.button-md {
+    max-width: 50%;
+}
+
+.button-lg {
+    max-width: max-content;
+}

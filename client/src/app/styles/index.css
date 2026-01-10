@@ -1,0 +1,15 @@
+@import './reset.css';
+@import './fonts.css';
+@import "./variables.css";
+@import './main.css';
+@import '../../ui-kit/Button/button.css';
+@import '../../ui-kit/FormField/formField.css';
+@import '../../ui-kit/Dropdown/dropdown.css';
+@import '../../components/Modal/modal.css';
+@import '../../views/Auth/auth.css';
+@import '../../views/Sidebar/sidebar.css';
+@import '../../views/Calendar/calendar.css';
+@import '../../pages/AuthPage/authPage.css';
+@import '../../pages/ProfilePage/profilePage.css';
+@import '../../pages/CalendarPage/calendarPage.css';
+@import '../../pages/UsersPage/usersPage.css';

@@ -1,0 +1,114 @@
+html {
+    font-family: 'Inter';
+    font-size: 20px;
+}
+
+h1 {
+    font-size: var(--h1-font-size);
+}
+
+h2 {
+    font-size: var(--h2-font-size);
+}
+
+.w-full {
+    width: 100%;
+}
+
+.relative {
+    position: relative;
+}
+
+.absolute {
+    position: absolute;
+}
+
+.page {
+    display: flex;
+    height: 100%;
+}
+
+.page > * {
+    flex: 1;
+}
+
+.wrapper {
+    border-radius: 16px;
+    background-color: var(--light-color);
+}
+
+.text-center {
+    text-align: center;
+}
+
+.error-feedback {
+    color: var(--error-color);
+}
+
+.flex {
+    display: flex;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.flex-center {
+    justify-content: center;
+    align-items: center;
+}
+
+.justify-start {
+    justify-content: start;
+}
+
+.justify-end {
+    justify-content: end;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.justify-around {
+    justify-content: space-around;
+}
+
+.align-normal {
+    align-items: normal;
+}
+
+.align-center {
+    align-items: center;
+}
+
+.align-start {
+    align-items: start;
+}
+
+.align-end {
+    align-items: end;
+}
+
+.background-1 {
+    background-image: url('../../assets/backgrounds/background1.jpg');
+    background-size: cover;
+    background-position: top;
+    height: 100vh;
+}
+
+@media screen and (max-width: 1025px) {
+    .page {
+        justify-content: center;
+    }
+
+    .page-with-nav {
+        align-items: center;
+        padding-left: 0;
+        padding-bottom: 86px;
+    }
+}

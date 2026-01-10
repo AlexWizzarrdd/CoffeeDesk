@@ -1,0 +1,21 @@
+@import url('../../views/Auth/auth.css');
+
+.auth-logo {
+    max-width: 191px;
+    max-height: 174px;
+    margin-bottom: min(83px, 5vw);
+}
+
+.auth-page {
+    padding-left: 0;
+}
+
+.auth-page.page > * {
+    flex: 0;
+}
+
+@media screen and (max-width: 460px) {
+    .auth-page {
+        justify-content: end;
+    }
+}

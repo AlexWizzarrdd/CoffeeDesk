@@ -1,0 +1,31 @@
+.calendar-page {
+    padding-top: 73px;
+    padding-left: calc(var(--nav-offset) + min(156px, 5vw));
+}
+
+.calendar-dropdown {
+    position: absolute;
+    top: 1.15vw;
+    right: min(94px, 5vw);
+}
+
+@media screen and (max-width: 1025px) {
+    .calendar-page {
+        padding-left: 0;
+        padding-bottom: 86px;
+    }
+
+    .calendar-page main {
+        display: flex;
+        justify-content: center;
+    }
+
+    .calendar-dropdown {
+        right: 50%;
+        transform: translateX(50%);
+    }
+
+    .calendar-wrapper {
+        margin-top: 8px;
+    }
+}

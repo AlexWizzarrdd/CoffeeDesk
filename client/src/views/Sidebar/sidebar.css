@@ -1,0 +1,145 @@
+.nav-wrapper {
+    position: fixed;
+    width: 100%;
+    max-width: clamp(86px, 12vw, 147px);
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 999;
+    grid-area: sidebar;
+}
+
+.nav-helper {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background-color: var(--primary-color);
+    mask: url(#circle-mask);
+}
+
+.nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+}
+
+.nav-mask {
+    position: absolute;
+    z-index: -99;
+}
+
+.nav-mask-circle {
+    transition: fill .8s ease, cx .5s ease;
+}
+
+.nav-link-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: clamp(74px, 10.5vw, 140px);
+    height: clamp(74px, 10.5vw, 140px);
+    margin-bottom: 30px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    transform: translateX(0);
+    transition: transform .4s ease, background-color .5s ease;
+    transition-delay: .04s;
+    z-index: 1;
+}
+
+.nav-link-wrapper a svg {
+    width: clamp(47px, 5.6vw, 73px);
+    height: 100%;
+}
+
+.nav-link-wrapper:first-of-type {
+    margin-top: 101px;
+}
+
+.nav-link-wrapper:last-of-type {
+    margin: 0;
+}
+
+.nav-link-wrapper:has(.active) {
+    transform: translateX(50%);
+}
+
+.button-exit {
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    padding: 15px 0;
+    z-index: 1;
+    border-radius: 0;
+    background-color: var(--semi-dark);
+    color: var(--primary-color);
+}
+
+.button-exit:hover {
+    background-color: var(--secondary-color);
+    color: var(--dark-color);
+}
+
+@media screen and (max-width: 1025px) {
+    .nav-wrapper {
+        right: 0;
+        top: auto;
+        height: 86px;
+        max-width: none;
+    }
+
+    .nav-helper {
+        border-radius: 70px;
+        background-color: var(--semi-dark);
+    }
+
+    .nav {
+        flex-direction: row;
+        padding: 10px 38px;
+        gap: 5vw;
+    }
+
+    .nav-link-wrapper:first-of-type {
+        margin-top: 0;
+    }
+
+    .nav-link-wrapper {
+        margin-bottom: 0;
+        width: max(74px, 8.2vw);
+        height: max(74px, 8.2vw);
+        background-color: transparent;
+    }
+
+    .nav-link-wrapper:has(.active) {
+        background-color: var(--primary-color);
+    }
+
+    .nav-link-wrapper:has(.active) .nav-mask-circle {
+        display: none;
+        fill: white;
+    }
+
+    .nav-link-wrapper:has(.active) {
+        transform: translateY(0);
+    }
+
+    .nav-mask rect {
+        width: 100vw;
+    }
+
+    .button-exit {
+        width: fit-content;
+        position: absolute;
+        bottom: auto;
+        left: auto;
+        right: 1%;
+        top: -90vh;
+        padding: 9px;
+        background-color: var(--primary-color);
+        color: var(--dark-color);
+        border-radius: 16px;
+    }
+}

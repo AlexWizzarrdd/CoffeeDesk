@@ -1,0 +1,24 @@
+@font-face {
+    font-family: 'Inter';
+    src: 
+        url('/fonts/Inter/Inter_24pt-Light.ttf'),
+        url('/fonts/Inter/Inter_24pt-Regular.ttf'),
+        url('/fonts/Inter/Inter_24pt-Medium.ttf'),
+        url('/fonts/Inter/Inter_24pt-SemiBold.ttf'),
+        url('/fonts/Inter/Inter_24pt-Bold.ttf');
+}
+
+@font-face {
+    font-family: 'Kreon';
+    src: 
+        url('/fonts/Kreon/Kreon-Light.ttf'),
+        url('/fonts/Kreon/Kreon-Regular.ttf'),
+        url('/fonts/Kreon/Kreon-Medium.ttf'),
+        url('/fonts/Kreon/Kreon-SemiBold.ttf'),
+        url('/fonts/Kreon/Kreon-Bold.ttf');
+}
+
+@font-face {
+    font-family: 'Krona One';
+    src: url('/fonts/KronaOne/KronaOne-Regular.ttf');
+}
