@@ -50,13 +50,15 @@ export const deleteShift = (id: number) => {
   return apiFetch(`/api/schedule/shifts/${id}/`, { method: "DELETE" });
 };
 
+export type RoleCode = "employee" | "intern" | "manager" | "admin";
+
 export const generateMonthShifts = (payload: {
   month: string; // "YYYY-MM"
   per_day: number;
   start_time: string; // "HH:MM"
   end_time: string; // "HH:MM"
   overwrite?: boolean;
-  include_roles?: ("employee" | "manager" | "admin")[];
+  include_roles?: RoleCode[];
   comment?: string;
 }) => {
   return apiFetch("/api/schedule/shifts/generate-month/", {

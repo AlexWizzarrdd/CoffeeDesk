@@ -7,6 +7,13 @@ import { getStats, type StatsResponse } from "@/services/schedule.service";
 
 const WEEKDAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
 
+const ROLE_LABEL: Record<string, string> = {
+  employee: "Бариста",
+  intern: "Стажёр",
+  manager: "Менеджер",
+  admin: "Управляющий",
+};
+
 const getCurrWeek = () => {
   const currDate = new Date();
   const currWeekday = currDate.getDay();
@@ -64,10 +71,9 @@ export const ProfilePage = () => {
   const fromMonth = useMemo(() => toISO(monthFirst(now)), [now]);
   const toMonth = useMemo(() => toISO(monthLast(now)), [now]);
 
-  // факт до вчера, но только если вчера ещё в этом месяце
   const toWorked = useMemo(() => {
     const y = yesterday(now);
-    if (y < monthFirst(now)) return null; // сегодня 1-е число
+    if (y < monthFirst(now)) return null;
     return toISO(y);
   }, [now]);
 
@@ -111,6 +117,8 @@ export const ProfilePage = () => {
   const plannedLabel = formatHM(plannedRow?.hours || 0, plannedRow?.minutes || 0);
   const leftLabel = formatHM(left.hours, left.minutes);
 
+  const roleLabel = ROLE_LABEL[user.role] || user.role;
+
   return (
     <div className="page profile-page">
       <main className="profile">
@@ -120,7 +128,7 @@ export const ProfilePage = () => {
             <p className="profile__name">
               {user.first_name} {user.last_name}
             </p>
-            <p className="profile__job">Бариста</p>
+            <p className="profile__job">{roleLabel}</p>
           </div>
         </header>
 
@@ -135,7 +143,6 @@ export const ProfilePage = () => {
             <span className="profile__row-value">{user.email}</span>
           </div>
 
-          {/* ✅ новый блок "факт / план / осталось" */}
           <div className="profile__row">
             <span className="profile__row-name">Часы за месяц:</span>
             <span className="profile__row-value">

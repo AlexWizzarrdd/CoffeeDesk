@@ -4,6 +4,8 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
+
+
 User = get_user_model()
 
 
@@ -60,3 +62,15 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ("id", "first_name", "last_name", "surname", "phone", "role", "is_approved", "is_active")
         read_only_fields = fields
+
+class UserRoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["role"]
+
+    def validate_role(self, value):
+        # при желании можно запретить ставить admin самому себе/кому-то и т.д.
+        return value
+
+# Backward compatibility (если где-то ещё используется старое имя)
+SetRoleSerializer = UserRoleSerializer

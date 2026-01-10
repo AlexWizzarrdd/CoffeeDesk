@@ -50,10 +50,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
+    # роли (значения храним как коды, отображение — человекочитаемое)
     ROLE_CHOICES = [
-        ("employee", "Employee"),
-        ("manager", "Manager"),
-        ("admin", "Admin"),
+        ("employee", "Бариста"),
+        ("intern", "Стажёр"),
+        ("manager", "Менеджер"),
+        ("admin", "Управляющий"),
     ]
 
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default="employee")

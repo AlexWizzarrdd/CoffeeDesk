@@ -159,7 +159,7 @@ export const Calendar = () => {
         per_day: 2,
         start_time: "09:00",
         end_time: "18:00",
-        include_roles: ["employee", "manager"],
+        include_roles: ["employee", "intern", "manager"],
         overwrite: false,
         comment: "Автогенерация 2/2",
       });
