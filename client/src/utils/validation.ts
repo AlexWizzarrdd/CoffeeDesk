@@ -3,7 +3,8 @@ export const isValidPhone = (phone: string) => {
     return pattern.test(phone);
 }
 
-export const isValidName = (name: string) => {
-    const pattern = /^[A-z]+$/i;
-    return pattern.test(name)
-}
+export const isValidName = (value: string) => {
+  const v = value.trim();
+  // минимум 2 символа, только буквы (RU/EN) и дефис
+  return /^[A-Za-zА-Яа-яЁё-]{2,}$/.test(v);
+};
