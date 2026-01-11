@@ -47,6 +47,17 @@ const minutesToHM = (total: number) => ({
 });
 const formatHM = (h: number, m: number) => `${h}ч ${m}м`;
 
+const formatRuDate = (iso?: string | null) => {
+  if (!iso) return "не указано";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  return `${dd}.${mm}.${yyyy}`;
+};
+
 export const ProfilePage = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedAddress, setSelectedAddress] = useState<string>("Выберете адрес:");
@@ -138,9 +149,12 @@ export const ProfilePage = () => {
             <span className="profile__row-value">{user.phone}</span>
           </div>
 
+          {/* ✅ вместо Email */}
           <div className="profile__row">
-            <span className="profile__row-name">E-mail:</span>
-            <span className="profile__row-value">{user.email}</span>
+            <span className="profile__row-name">Медосмотр (рекомендуется до):</span>
+            <span className="profile__row-value">
+              {formatRuDate((user as any).medical_exam_recommended_at)}
+            </span>
           </div>
 
           <div className="profile__row">
@@ -187,12 +201,7 @@ export const ProfilePage = () => {
           ))}
         </div>
 
-        <DayModal
-          date={selectedDate}
-          isOpen={Boolean(selectedDate)}
-          closeModal={() => setSelectedDate(null)}
-          theme="round"
-        />
+        <DayModal date={selectedDate} isOpen={Boolean(selectedDate)} closeModal={() => setSelectedDate(null)} theme="round" />
       </main>
     </div>
   );

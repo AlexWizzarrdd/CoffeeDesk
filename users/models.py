@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.core.validators import RegexValidator
-
+from django.utils import timezone
 
 phone_validator = RegexValidator(
     regex = r'^\+7\d{10}$',
@@ -46,6 +46,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=150, validators=[name_validator])
     last_name = models.CharField(max_length=150, validators=[name_validator])
     surname = models.CharField(max_length=150, validators=[name_validator])
+    medical_exam_recommended_at = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name="Рекомендуемый медосмотр до",
+    )
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)

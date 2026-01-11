@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from .serializers import UserMedicalExamSerializer
 
 from .serializers import MeSerializer, UserApproveSerializer, UserRoleSerializer
 from .permissions import IsManagerOrAdmin, IsAdmin
@@ -86,3 +87,14 @@ class SetUserRoleView(generics.UpdateAPIView):
             )
 
         return super().patch(request, *args, **kwargs)
+
+class SetUserMedicalExamView(generics.UpdateAPIView):
+    """
+    PATCH /api/manager/users/<user_id>/medical-exam/
+    body: {"medical_exam_recommended_at": "2026-01-10"} или null
+    """
+    queryset = User.objects.all()
+    serializer_class = UserMedicalExamSerializer
+    permission_classes = [IsAuthenticated, IsManagerOrAdmin]
+    lookup_url_kwarg = "user_id"
+    http_method_names = ["patch"]

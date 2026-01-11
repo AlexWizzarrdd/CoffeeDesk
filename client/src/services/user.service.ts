@@ -1,3 +1,4 @@
+// client/src/services/user.service.ts
 import { apiFetch } from "@/api/apiFetch";
 
 export const getUser = () => {
@@ -28,13 +29,22 @@ export const deleteUser = (userId: number) => {
   return apiFetch(`/api/manager/users/${userId}/`, { method: "DELETE" });
 };
 
-// ✅ НОВОЕ: смена роли отдельным эндпоинтом
+// ✅ смена роли отдельным эндпоинтом
 export type RoleCode = "intern" | "employee" | "manager" | "admin";
 
 export const setUserRole = (userId: number, role: RoleCode) => {
   return apiFetch(`/api/manager/users/${userId}/role/`, {
     method: "PATCH",
     body: JSON.stringify({ role }),
+  });
+};
+
+// ✅ НОВОЕ: дата рекомендуемого медосмотра (мед-книжка)
+// date: "YYYY-MM-DD" или null (сбросить)
+export const setUserMedicalExam = (userId: number, medical_exam_recommended_at: string | null) => {
+  return apiFetch(`/api/manager/users/${userId}/medical-exam/`, {
+    method: "PATCH",
+    body: JSON.stringify({ medical_exam_recommended_at }),
   });
 };
 

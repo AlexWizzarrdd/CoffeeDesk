@@ -4,7 +4,8 @@ import {
   approveUser,
   deleteUser,
   getUsers,
-  setUserRole, // ✅ добавим в user.service.ts
+  setUserRole,
+  setUserMedicalExam, // ✅ добавили
 } from "@/services/user.service";
 import { Button } from "@/ui-kit/Button/Button";
 import type { User } from "@/view-models/user.model";
@@ -45,6 +46,18 @@ const ROLE_LABEL: Record<RoleCode, string> = {
 };
 
 const ROLE_OPTIONS: RoleCode[] = ["employee", "intern", "manager", "admin"];
+
+const toDateInputValue = (iso?: string | null) => (iso ? iso.slice(0, 10) : "");
+
+const formatRuDate = (iso?: string | null) => {
+  if (!iso) return "не указано";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  return `${dd}.${mm}.${yyyy}`;
+};
 
 export const UsersPage = () => {
   const { user: currentUser } = useAuthContext();
@@ -172,6 +185,18 @@ export const UsersPage = () => {
     }
   };
 
+  const onSetMedicalExam = async (id: number, date: string | null) => {
+    try {
+      setBusyId(id);
+      await setUserMedicalExam(id, date);
+      await loadUsers();
+    } catch (e: any) {
+      setError(e?.message || "Не удалось обновить дату медосмотра");
+    } finally {
+      setBusyId(null);
+    }
+  };
+
   const canDelete = (u: User) => {
     if (u.id === currentUser.id) return false;
     if (currentUser.role === "admin") return true;
@@ -237,12 +262,36 @@ export const UsersPage = () => {
     );
   };
 
+  const renderMedicalExamUI = (u: User) => {
+    // ✅ показываем для manager/admin, редактирование тоже для manager/admin
+    const disabled = busyId === u.id;
+
+    return (
+      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <input
+          type="date"
+          value={toDateInputValue((u as any).medical_exam_recommended_at)}
+          disabled={disabled}
+          onChange={(e) => onSetMedicalExam(u.id, e.target.value ? e.target.value : null)}
+          style={{
+            padding: "8px 10px",
+            borderRadius: 8,
+            border: "1px solid rgba(255,255,255,0.15)",
+            background: "rgba(255,255,255,0.06)",
+            color: "inherit",
+            outline: "none",
+            minWidth: 160,
+          }}
+        />
+      </div>
+    );
+  };
+
   return (
     <div className="page users-page">
       <main className="wrapper">
         <div style={{ marginBottom: 12, opacity: 0.7 }}>
-          План: {fromMonth} — {toMonth} / Факт: {fromMonth} — {toWorked || "—"}{" "}
-          {statsLoading ? "⏳" : ""}
+          План: {fromMonth} — {toMonth} / Факт: {fromMonth} — {toWorked || "—"} {statsLoading ? "⏳" : ""}
         </div>
 
         <ol className="users">
@@ -255,8 +304,9 @@ export const UsersPage = () => {
             const workedLabel = formatHM(worked.hours, worked.minutes);
             const plannedLabel = formatHM(planned.hours, planned.minutes);
 
-            const roleLabel =
-              (ROLE_LABEL as any)[u.role] || u.role; // если вдруг прилетит неожиданный код
+            const roleLabel = (ROLE_LABEL as any)[u.role] || u.role;
+
+            const medicalRu = formatRuDate((u as any).medical_exam_recommended_at);
 
             return (
               <li key={u.id} className="users__user flex justify-between">
@@ -267,8 +317,11 @@ export const UsersPage = () => {
                   <p>{u.phone}</p>
                   <p>Роль: {roleLabel}</p>
                   <p>
-                    Статус: {u.is_active ? "active" : "inactive"} /{" "}
-                    {u.is_approved ? "approved" : "pending"}
+                    Статус: {u.is_active ? "active" : "inactive"} / {u.is_approved ? "approved" : "pending"}
+                  </p>
+
+                  <p>
+                    Медосмотр (рекомендуется до): <b>{medicalRu}</b>
                   </p>
 
                   <p>
@@ -279,6 +332,7 @@ export const UsersPage = () => {
                 <div className="flex flex-column" style={{ gap: 8 }}>
                   {renderMainAction(u)}
                   {renderRoleUI(u)}
+                  {renderMedicalExamUI(u)}
 
                   {canDelete(u) ? (
                     <Button

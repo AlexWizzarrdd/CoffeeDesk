@@ -39,13 +39,13 @@ class RegisterSerializer(serializers.ModelSerializer):
 class UserListSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("id", "first_name", "last_name", "surname", "phone", "role", "is_approved", "is_active")
+        fields = ("id", "first_name", "last_name", "surname", "phone", "role", "is_approved", "is_active", "medical_exam_recommended_at",)
         read_only_fields = fields
 
 class MeSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("id", "phone", "first_name", "last_name", "surname", "role", "is_approved", "is_active", "is_staff")
+        fields = ("id", "phone", "first_name", "last_name", "surname", "role", "is_approved", "is_active", "is_staff", "medical_exam_recommended_at",)
         read_only_fields = fields
 
 class PhoneTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -60,7 +60,7 @@ class UserApproveSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("id", "first_name", "last_name", "surname", "phone", "role", "is_approved", "is_active")
+        fields = ("id", "first_name", "last_name", "surname", "phone", "role", "is_approved", "is_active", "medical_exam_recommended_at",)
         read_only_fields = fields
 
 class UserRoleSerializer(serializers.ModelSerializer):
@@ -71,6 +71,11 @@ class UserRoleSerializer(serializers.ModelSerializer):
     def validate_role(self, value):
         # при желании можно запретить ставить admin самому себе/кому-то и т.д.
         return value
+
+class UserMedicalExamSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["medical_exam_recommended_at"]
 
 # Backward compatibility (если где-то ещё используется старое имя)
 SetRoleSerializer = UserRoleSerializer
