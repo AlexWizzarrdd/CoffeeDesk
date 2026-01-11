@@ -1,3 +1,4 @@
+// client/src/components/Modal/DayModal.tsx
 import { Activity } from "react";
 import { useAuthContext } from "@/hooks/authHooks";
 import { useEffect, useMemo, useState } from "react";
@@ -12,6 +13,11 @@ import { getUsers } from "@/services/user.service";
 import type { User } from "@/view-models/user.model";
 import { Button } from "@/ui-kit/Button/Button";
 
+import {
+  createShiftChangeRequest,
+  type ShiftChangeType,
+} from "@/services/shiftRequests.service";
+
 type DayModalProps = {
   date: Date | null;
   isOpen: boolean;
@@ -20,8 +26,18 @@ type DayModalProps = {
 };
 
 const MONTHS = [
-  "января","февраля","марта","апреля","мая","июня",
-  "июля","августа","сентября","октября","ноября","декабря",
+  "января",
+  "февраля",
+  "марта",
+  "апреля",
+  "мая",
+  "июня",
+  "июля",
+  "августа",
+  "сентября",
+  "октября",
+  "ноября",
+  "декабря",
 ];
 
 const toISODate = (d: Date) => {
@@ -46,7 +62,7 @@ export const DayModal = ({ date, isOpen, closeModal, theme }: DayModalProps) => 
   const [users, setUsers] = useState<User[]>([]);
   const [shifts, setShifts] = useState<Shift[]>([]);
 
-  // форма добавления/редактирования
+  // форма добавления/редактирования (manager/admin)
   const [formEmployee, setFormEmployee] = useState<number | "">("");
   const [formStart, setFormStart] = useState("09:00");
   const [formEnd, setFormEnd] = useState("18:00");
@@ -59,6 +75,13 @@ export const DayModal = ({ date, isOpen, closeModal, theme }: DayModalProps) => 
   // -1 = сохраняем форму
   // shiftId = удаляем конкретную смену
   const [busyId, setBusyId] = useState<number | null>(null);
+
+  // ---------- Shift Change Request (barista/intern) ----------
+  const [reqOpen, setReqOpen] = useState(false);
+  const [reqShiftId, setReqShiftId] = useState<number | null>(null);
+  const [reqType, setReqType] = useState<ShiftChangeType>("move");
+  const [reqComment, setReqComment] = useState("");
+  const [reqBusy, setReqBusy] = useState(false);
 
   const dayISO = useMemo(() => (date ? toISODate(date) : ""), [date]);
 
@@ -101,15 +124,55 @@ export const DayModal = ({ date, isOpen, closeModal, theme }: DayModalProps) => 
     // formEmployee не трогаем — пусть остаётся выбранным в селекте
   };
 
+  const openRequest = (shiftId: number) => {
+    setReqShiftId(shiftId);
+    setReqType("move");
+    setReqComment("");
+    setReqOpen(true);
+  };
+
+  const submitRequest = async () => {
+    if (!reqShiftId) return;
+
+    try {
+      setReqBusy(true);
+      await createShiftChangeRequest({
+        shift: reqShiftId,
+        type: reqType,
+        comment: reqComment,
+      });
+      setReqOpen(false);
+      setReqShiftId(null);
+    } catch (e: any) {
+      setError(e?.message || "Не удалось отправить запрос");
+    } finally {
+      setReqBusy(false);
+    }
+  };
+
   useEffect(() => {
     if (isOpen) {
       load();
       resetForm();
+
+      // сброс окна запроса при открытии
+      setReqOpen(false);
+      setReqShiftId(null);
+      setReqComment("");
+      setReqType("move");
+      setReqBusy(false);
     } else {
       // при закрытии чистим ошибку и busy
       setError("");
       setBusyId(null);
       resetForm();
+
+      // закрываем окно запроса
+      setReqOpen(false);
+      setReqShiftId(null);
+      setReqComment("");
+      setReqType("move");
+      setReqBusy(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, dayISO]);
@@ -119,7 +182,7 @@ export const DayModal = ({ date, isOpen, closeModal, theme }: DayModalProps) => 
   const startEdit = (s: Shift) => {
     setEditingId(s.id);
 
-    // ✅ ВАЖНО: берём employee_id с бэка
+    // ✅ берём employee_id с бэка
     const empId = (s as any).employee_id ?? (s as any).employee ?? null;
 
     if (empId) {
@@ -161,7 +224,7 @@ export const DayModal = ({ date, isOpen, closeModal, theme }: DayModalProps) => 
         // comment может быть пустым — это нормально
         patch.comment = formComment;
 
-        // date менять НЕ нужно (у тебя редактирование внутри одного дня)
+        // date менять НЕ нужно (редактирование внутри одного дня)
         await updateShift(editingId, patch);
       } else {
         await createShift({
@@ -198,6 +261,11 @@ export const DayModal = ({ date, isOpen, closeModal, theme }: DayModalProps) => 
     } finally {
       setBusyId(null);
     }
+  };
+
+  const isOwnShift = (s: Shift) => {
+    const empId = (s as any).employee_id ?? (s as any).employee ?? null;
+    return Number(empId) === user.id;
   };
 
   return (
@@ -285,13 +353,10 @@ export const DayModal = ({ date, isOpen, closeModal, theme }: DayModalProps) => 
                         </div>
                       ) : null}
 
+                      {/* manager/admin actions */}
                       {isManagerLike ? (
                         <div style={{ display: "flex", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
-                          <Button
-                            classess="users__button"
-                            onClick={() => startEdit(s)}
-                            disabled={rowBusy}
-                          >
+                          <Button classess="users__button" onClick={() => startEdit(s)} disabled={rowBusy}>
                             Редактировать
                           </Button>
 
@@ -304,13 +369,22 @@ export const DayModal = ({ date, isOpen, closeModal, theme }: DayModalProps) => 
                           </Button>
                         </div>
                       ) : null}
+
+                      {/* barista/intern: request change */}
+                      {!isManagerLike && isOwnShift(s) ? (
+                        <div style={{ display: "flex", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
+                          <Button classess="users__button" onClick={() => openRequest(s.id)}>
+                            Запросить изменение
+                          </Button>
+                        </div>
+                      ) : null}
                     </div>
                   );
                 })}
               </div>
             )}
 
-            {/* форма */}
+            {/* форма (manager/admin) */}
             {isManagerLike ? (
               <div style={{ marginTop: 18, paddingTop: 18, borderTop: "1px solid rgba(0,0,0,0.12)" }}>
                 <div style={{ fontWeight: 900, fontSize: 20, marginBottom: 10 }}>
@@ -343,7 +417,12 @@ export const DayModal = ({ date, isOpen, closeModal, theme }: DayModalProps) => 
                       type="time"
                       value={formStart}
                       onChange={(e) => setFormStart(e.target.value)}
-                      style={{ width: "100%", borderRadius: 12, padding: 12, border: "1px solid rgba(0,0,0,0.25)" }}
+                      style={{
+                        width: "100%",
+                        borderRadius: 12,
+                        padding: 12,
+                        border: "1px solid rgba(0,0,0,0.25)",
+                      }}
                     />
                   </div>
 
@@ -353,7 +432,12 @@ export const DayModal = ({ date, isOpen, closeModal, theme }: DayModalProps) => 
                       type="time"
                       value={formEnd}
                       onChange={(e) => setFormEnd(e.target.value)}
-                      style={{ width: "100%", borderRadius: 12, padding: 12, border: "1px solid rgba(0,0,0,0.25)" }}
+                      style={{
+                        width: "100%",
+                        borderRadius: 12,
+                        padding: 12,
+                        border: "1px solid rgba(0,0,0,0.25)",
+                      }}
                     />
                   </div>
                 </div>
@@ -365,7 +449,12 @@ export const DayModal = ({ date, isOpen, closeModal, theme }: DayModalProps) => 
                   value={formComment}
                   onChange={(e) => setFormComment(e.target.value)}
                   placeholder="..."
-                  style={{ width: "100%", borderRadius: 12, padding: 12, border: "1px solid rgba(0,0,0,0.25)" }}
+                  style={{
+                    width: "100%",
+                    borderRadius: 12,
+                    padding: 12,
+                    border: "1px solid rgba(0,0,0,0.25)",
+                  }}
                 />
 
                 <div style={{ display: "flex", gap: 10, marginTop: 14, flexWrap: "wrap" }}>
@@ -384,6 +473,88 @@ export const DayModal = ({ date, isOpen, closeModal, theme }: DayModalProps) => 
           </div>
         </div>
       </div>
+
+      {/* ---------- Request modal overlay ---------- */}
+      {reqOpen ? (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.35)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 12,
+            zIndex: 100,
+          }}
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setReqOpen(false);
+          }}
+        >
+          <div
+            style={{
+              width: "min(560px, 96vw)",
+              borderRadius: 16,
+              padding: 16,
+              background: "white",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+              <div style={{ fontWeight: 900, fontSize: 18 }}>Запрос на изменение смены</div>
+              <button
+                onClick={() => setReqOpen(false)}
+                style={{ border: "none", background: "transparent", cursor: "pointer" }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ marginTop: 12 }}>
+              <label style={{ display: "block", fontWeight: 700, marginBottom: 6 }}>Тип</label>
+              <select
+                value={reqType}
+                onChange={(e) => setReqType(e.target.value as ShiftChangeType)}
+                style={{
+                  width: "100%",
+                  borderRadius: 12,
+                  padding: 12,
+                  border: "1px solid rgba(0,0,0,0.25)",
+                }}
+              >
+                <option value="swap">Поменяться</option>
+                <option value="drop">Не могу выйти</option>
+                <option value="move">Перенести / изменить</option>
+                <option value="other">Другое</option>
+              </select>
+
+              <label style={{ display: "block", fontWeight: 700, margin: "12px 0 6px" }}>
+                Комментарий <span style={{ fontWeight: 400, opacity: 0.6 }}>(необязательно)</span>
+              </label>
+              <textarea
+                value={reqComment}
+                onChange={(e) => setReqComment(e.target.value)}
+                rows={3}
+                style={{
+                  width: "100%",
+                  borderRadius: 12,
+                  padding: 12,
+                  border: "1px solid rgba(0,0,0,0.25)",
+                  resize: "vertical",
+                }}
+              />
+            </div>
+
+            <div style={{ display: "flex", gap: 10, marginTop: 14, flexWrap: "wrap" }}>
+              <Button classess="users__button" onClick={submitRequest} disabled={reqBusy}>
+                {reqBusy ? "..." : "Отправить"}
+              </Button>
+              <Button classess="users__button" onClick={() => setReqOpen(false)} disabled={reqBusy}>
+                Отмена
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </Activity>
   );
 };

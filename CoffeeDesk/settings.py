@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'schedule',
     'notifications',
     'tasks',
+    'shift_requests',
 ]
 
 MIDDLEWARE = [

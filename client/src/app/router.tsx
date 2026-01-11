@@ -9,6 +9,7 @@ import { NotificationsPage } from "@/pages/NotificationsPage/NotificationsPage";
 import { Sidebar } from "@/views/Sidebar/Sidebar";
 import { getToken } from "@/api/tokenApi";
 import { TasksPage } from "@/pages/TasksPage/TasksPage";
+import { ShiftRequestsPage } from "@/pages/ShiftRequestsPage/ShiftRequestsPage";
 
 export default createBrowserRouter([
   {
@@ -32,7 +33,7 @@ export default createBrowserRouter([
       { path: "users", Component: UsersPage },
       { path: "notifications", Component: NotificationsPage },
 
-      // ✅ добавили страницу задач
+      { path: "shift-requests", Component: ShiftRequestsPage },
       { path: "tasks", Component: TasksPage },
     ],
   },

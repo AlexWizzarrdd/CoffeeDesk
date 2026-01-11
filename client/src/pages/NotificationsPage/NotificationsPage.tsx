@@ -9,6 +9,11 @@ import {
 } from "@/services/notifications.service";
 import { Button } from "@/ui-kit/Button/Button";
 import { ErrorPage } from "@/pages/ErrorPage/ErrorPage";
+import {
+  approveShiftChangeRequest,
+  rejectShiftChangeRequest,
+} from "@/services/shiftRequests.service";
+import { useAuthContext } from "@/hooks/authHooks";
 
 const formatDT = (iso: string) => {
   const d = new Date(iso);
@@ -22,6 +27,9 @@ const formatDT = (iso: string) => {
 };
 
 export const NotificationsPage = () => {
+  const { user } = useAuthContext();
+  const isManagerLike = user.role === "manager" || user.role === "admin";
+
   const [items, setItems] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -76,6 +84,44 @@ export const NotificationsPage = () => {
     }
   };
 
+  const onApproveShiftRequest = async (n: Notification) => {
+    const requestId = (n as any)?.data?.request_id;
+    if (!requestId) return;
+
+    const manager_comment =
+      window.prompt("Комментарий менеджера (необязательно):", "") ?? "";
+
+    try {
+      setBusyId(n.id);
+      await approveShiftChangeRequest(Number(requestId), manager_comment);
+      await markNotificationRead(n.id);
+      await load();
+    } catch (e: any) {
+      setError(e?.message || "Не удалось одобрить запрос");
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const onRejectShiftRequest = async (n: Notification) => {
+    const requestId = (n as any)?.data?.request_id;
+    if (!requestId) return;
+
+    const manager_comment =
+      window.prompt("Причина отказа (необязательно):", "") ?? "";
+
+    try {
+      setBusyId(n.id);
+      await rejectShiftChangeRequest(Number(requestId), manager_comment);
+      await markNotificationRead(n.id);
+      await load();
+    } catch (e: any) {
+      setError(e?.message || "Не удалось отклонить запрос");
+    } finally {
+      setBusyId(null);
+    }
+  };
+
   if (loading) return <ErrorPage error="Грузим уведомления..." />;
   if (error) return <ErrorPage error={error} />;
 
@@ -118,35 +164,69 @@ export const NotificationsPage = () => {
             <div className="notifications-empty">Нет уведомлений</div>
           ) : (
             <div className="notifications-list">
-              {visibleItems.map((n) => (
-                <div
-                  key={n.id}
-                  className={`notification-card ${n.is_read ? "is-read" : ""}`}
-                >
-                  <div className="notification-body">
-                    <div className="notification-title">
-                      {!n.is_read ? "● " : ""}
-                      {n.title}
+              {visibleItems.map((n) => {
+                const hasShiftRequest = Boolean((n as any)?.data?.request_id);
+                const showDecisionButtons = !n.is_read && hasShiftRequest && isManagerLike;
+
+                return (
+                  <div
+                    key={n.id}
+                    className={`notification-card ${n.is_read ? "is-read" : ""}`}
+                  >
+                    <div className="notification-body">
+                      <div className="notification-title">
+                        {!n.is_read ? "● " : ""}
+                        {n.title}
+                      </div>
+
+                      {n.message ? (
+                        <div className="notification-message">{n.message}</div>
+                      ) : null}
+
+                      <div className="notification-date">{formatDT(n.created_at)}</div>
                     </div>
 
-                    {n.message ? <div className="notification-message">{n.message}</div> : null}
+                    <div className="notification-actions">
+                      {!n.is_read ? (
+                        showDecisionButtons ? (
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: 8,
+                              flexWrap: "wrap",
+                              justifyContent: "flex-end",
+                            }}
+                          >
+                            <Button
+                              classess="button-sm"
+                              onClick={() => onApproveShiftRequest(n)}
+                              disabled={busyId === n.id}
+                            >
+                              {busyId === n.id ? "..." : "Одобрить"}
+                            </Button>
 
-                    <div className="notification-date">{formatDT(n.created_at)}</div>
+                            <Button
+                              classess="button-sm users__button--danger"
+                              onClick={() => onRejectShiftRequest(n)}
+                              disabled={busyId === n.id}
+                            >
+                              {busyId === n.id ? "..." : "Отклонить"}
+                            </Button>
+                          </div>
+                        ) : (
+                          <Button
+                            classess="button-sm"
+                            onClick={() => onRead(n.id)}
+                            disabled={busyId === n.id}
+                          >
+                            {busyId === n.id ? "..." : "Прочитано"}
+                          </Button>
+                        )
+                      ) : null}
+                    </div>
                   </div>
-
-                  <div className="notification-actions">
-                    {!n.is_read ? (
-                      <Button
-                        classess="button-sm"
-                        onClick={() => onRead(n.id)}
-                        disabled={busyId === n.id}
-                      >
-                        {busyId === n.id ? "..." : "Прочитано"}
-                      </Button>
-                    ) : null}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
