@@ -1,3 +1,4 @@
+// client/src/pages/NotificationsPage/NotificationsPage.tsx
 import "./notifications.css";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -7,6 +8,7 @@ import {
   type Notification,
 } from "@/services/notifications.service";
 import { Button } from "@/ui-kit/Button/Button";
+import { ErrorPage } from "@/pages/ErrorPage/ErrorPage";
 
 const formatDT = (iso: string) => {
   const d = new Date(iso);
@@ -74,21 +76,20 @@ export const NotificationsPage = () => {
     }
   };
 
+  if (loading) return <ErrorPage error="Грузим уведомления..." />;
+  if (error) return <ErrorPage error={error} />;
+
   return (
     <div className="page notifications-page">
-      <main className="wrapper" style={{ padding: 16 }}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            gap: 12,
-            alignItems: "center",
-          }}
-        >
-          <h2 style={{ margin: 0 }}>Уведомления</h2>
+      <main className="wrapper">
+        {/* Toolbar */}
+        <div className="notifications-toolbar">
+          <div className="notifications-toolbar__left">
+            <h2 style={{ margin: 0 }}>Уведомления</h2>
+          </div>
 
-          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-            <label style={{ display: "flex", gap: 8, alignItems: "center", opacity: 0.85 }}>
+          <div className="notifications-toolbar__right">
+            <label className="notifications-checkbox">
               <input
                 type="checkbox"
                 checked={onlyUnread}
@@ -97,7 +98,11 @@ export const NotificationsPage = () => {
               Только непрочитанные
             </label>
 
-            <Button classess="button-sm" onClick={onReadAll} disabled={busyAll || items.length === 0}>
+            <Button
+              classess="button-sm"
+              onClick={onReadAll}
+              disabled={busyAll || items.length === 0}
+            >
               {busyAll ? "..." : "Прочитать всё"}
             </Button>
 
@@ -107,52 +112,44 @@ export const NotificationsPage = () => {
           </div>
         </div>
 
-        {error ? <div style={{ marginTop: 12, opacity: 0.9 }}>{error}</div> : null}
-
-        {loading ? (
-          <div style={{ marginTop: 14, opacity: 0.7 }}>Загрузка...</div>
-        ) : visibleItems.length === 0 ? (
-          <div style={{ marginTop: 14, opacity: 0.7 }}>Нет уведомлений</div>
-        ) : (
-          <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 10 }}>
-            {visibleItems.map((n) => (
-              <div
-                key={n.id}
-                style={{
-                  borderRadius: 16,
-                  padding: 12,
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  opacity: n.is_read ? 0.75 : 1,
-                }}
-              >
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
-                  <div>
-                    <div style={{ fontWeight: 800 }}>
+        {/* Список: скролл только тут */}
+        <div className="notifications-list-scroll">
+          {visibleItems.length === 0 ? (
+            <div className="notifications-empty">Нет уведомлений</div>
+          ) : (
+            <div className="notifications-list">
+              {visibleItems.map((n) => (
+                <div
+                  key={n.id}
+                  className={`notification-card ${n.is_read ? "is-read" : ""}`}
+                >
+                  <div className="notification-body">
+                    <div className="notification-title">
                       {!n.is_read ? "● " : ""}
                       {n.title}
                     </div>
 
-                    {n.message ? <div style={{ marginTop: 6 }}>{n.message}</div> : null}
+                    {n.message ? <div className="notification-message">{n.message}</div> : null}
 
-                    <div style={{ marginTop: 8, fontSize: 12, opacity: 0.75 }}>
-                      {formatDT(n.created_at)}
-                    </div>
+                    <div className="notification-date">{formatDT(n.created_at)}</div>
                   </div>
 
-                  {!n.is_read ? (
-                    <Button
-                      classess="button-sm"
-                      onClick={() => onRead(n.id)}
-                      disabled={busyId === n.id}
-                    >
-                      {busyId === n.id ? "..." : "Прочитано"}
-                    </Button>
-                  ) : null}
+                  <div className="notification-actions">
+                    {!n.is_read ? (
+                      <Button
+                        classess="button-sm"
+                        onClick={() => onRead(n.id)}
+                        disabled={busyId === n.id}
+                      >
+                        {busyId === n.id ? "..." : "Прочитано"}
+                      </Button>
+                    ) : null}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
       </main>
     </div>
   );

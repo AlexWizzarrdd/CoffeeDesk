@@ -1,6 +1,6 @@
-/* client/src/pages/NotificationsPage/notifications.css */
+/* client/src/pages/TasksPage/tasksPage.css */
 
-.notifications-page {
+.tasks-page {
   /* как у остальных страниц с сайдбаром */
   padding-left: calc(var(--nav-offset) + min(56px, 5vw));
   padding-top: 24px;
@@ -11,7 +11,7 @@
   overflow: hidden;
 }
 
-.notifications-page .wrapper {
+.tasks-page .wrapper {
   max-width: 900px;
   margin: 0 auto;
   padding: 24px;
@@ -27,7 +27,7 @@
 
 /* ---------- Toolbar ---------- */
 
-.notifications-toolbar {
+.tasks-toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -35,36 +35,64 @@
   flex-wrap: wrap;
 }
 
-.notifications-toolbar__left {
+.tasks-toolbar__left,
+.tasks-toolbar__right {
   display: flex;
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
 }
 
-.notifications-toolbar__right {
-  display: flex;
-  align-items: center;
+.tasks-filter {
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.6);
+  outline: none;
+}
+
+/* ---------- Create block ---------- */
+
+.tasks-create {
+  margin-top: 6px;
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.tasks-create__title {
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.tasks-create-grid {
+  display: grid;
   gap: 10px;
-  flex-wrap: wrap;
+  grid-template-columns: 1.2fr 1fr 1fr 1fr;
 }
 
-.notifications-checkbox {
-  display: inline-flex;
-  gap: 8px;
-  align-items: center;
-  opacity: 0.9;
-  user-select: none;
-  cursor: pointer;
+.tasks-create-input {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.6);
+  outline: none;
 }
 
-.notifications-checkbox input {
-  transform: translateY(1px);
+.tasks-create-textarea {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.6);
+  outline: none;
+  resize: vertical;
 }
 
 /* ---------- Scroll area for list ---------- */
 
-.notifications-list-scroll {
+.tasks-list-scroll {
   flex: 1;          /* ✅ занимает всё оставшееся место */
   min-height: 0;    /* ✅ критично для flex + scroll */
   overflow: auto;   /* ✅ скролл только тут */
@@ -72,14 +100,24 @@
   padding-bottom: 24px; /* ✅ чтобы последняя карточка не пряталась */
 }
 
-.notifications-empty {
+.tasks-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tasks-empty {
   margin-top: 10px;
   opacity: 0.75;
 }
 
 /* ---------- Card ---------- */
 
-.notification-card {
+.task-card {
   background: rgba(255, 255, 255, 0.6);
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 16px;
@@ -91,36 +129,37 @@
   gap: 14px;
 }
 
-.notification-card.is-read {
-  opacity: 0.8;
-}
-
-.notification-body {
+.task-card__body {
   flex: 1;
   min-width: 0;
 }
 
-.notification-title {
+.task-card__title {
   font-size: 16px;
   font-weight: 800;
   line-height: 1.2;
 }
 
-.notification-message {
+.task-card__meta {
   margin-top: 6px;
+  opacity: 0.85;
+  line-height: 1.3;
+}
+
+.task-card__assignee {
+  margin-top: 6px;
+  opacity: 0.85;
+}
+
+.task-card__desc {
+  margin-top: 8px;
   font-size: 14px;
   line-height: 1.35;
   opacity: 0.92;
   white-space: pre-wrap;
 }
 
-.notification-date {
-  margin-top: 10px;
-  font-size: 12px;
-  opacity: 0.65;
-}
-
-.notification-actions {
+.task-card__actions {
   min-width: 160px;
   display: flex;
   justify-content: flex-end;
@@ -129,29 +168,40 @@
 /* ---------- Responsive ---------- */
 
 @media (max-width: 1025px) {
-  .notifications-page {
+  .tasks-page {
     padding-left: 0;
     padding-bottom: 86px;
   }
 
-  .notifications-page .wrapper {
+  .tasks-page .wrapper {
     height: calc(100dvh - 24px - 86px);
   }
 }
 
+@media (max-width: 900px) {
+  .tasks-create-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .tasks-create-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 620px) {
-  .notification-card {
+  .task-card {
     flex-direction: column;
   }
 
-  .notification-actions {
+  .task-card__actions {
     width: 100%;
     min-width: 0;
     justify-content: flex-start;
   }
 
-  .notification-actions .button-sm,
-  .notification-actions .users__button {
+  .task-card__actions .users__button {
     width: 100%;
   }
 }

@@ -1,10 +1,11 @@
-import { useEffect, useRef, type RefObject } from "react";
+import React, { useEffect, useRef, type RefObject } from "react";
 import { NavLink, useNavigate } from "react-router";
 import CalendarIcon from "@/assets/icons/calendarLogo.svg?react";
 import ProfileIcon from "@/assets/icons/profileLogo.svg?react";
 import { clearTokens } from "@/api/tokenApi";
 import { useAuthContext } from "@/hooks/authHooks";
 import { NotificationsBell } from "@/components/Notifications/NotificationsBell";
+import { TasksBell } from "@/components/TasksBell/TasksBell";
 
 const updateMaskPosition = (
   maskRef: RefObject<SVGCircleElement | null>,
@@ -45,6 +46,7 @@ const linkHandler = (
   circleRef: RefObject<SVGCircleElement | null>
 ) => {
   if (ev.target === ev.currentTarget) return;
+
   const el = ev.currentTarget; // HTMLDivElement
   if (el.querySelector(".active")) return;
 
@@ -79,12 +81,7 @@ export const Sidebar = () => {
             <mask id="circle-mask">
               <rect width="147" height="100vh" fill="white" />
               {window.innerWidth < 1026 ? null : (
-                <circle
-                  ref={circleRef}
-                  r="90"
-                  fill="white"
-                  className="nav-mask-circle"
-                />
+                <circle ref={circleRef} r="90" fill="white" className="nav-mask-circle" />
               )}
             </mask>
           </defs>
@@ -92,32 +89,37 @@ export const Sidebar = () => {
       </div>
 
       <nav className="nav">
-  <div className="nav-link-wrapper" onMouseDown={(ev) => linkHandler(ev, circleRef)}>
-    <NavLink to="/">
-      <ProfileIcon />
-    </NavLink>
-  </div>
+        <div className="nav-link-wrapper" onMouseDown={(ev) => linkHandler(ev, circleRef)}>
+          <NavLink to="/">
+            <ProfileIcon />
+          </NavLink>
+        </div>
 
-  <div className="nav-link-wrapper" onMouseDown={(ev) => linkHandler(ev, circleRef)}>
-    <NavLink to="/calendar">
-      <CalendarIcon />
-    </NavLink>
-  </div>
+        <div className="nav-link-wrapper" onMouseDown={(ev) => linkHandler(ev, circleRef)}>
+          <NavLink to="/calendar">
+            <CalendarIcon />
+          </NavLink>
+        </div>
 
-  <div className="nav-link-wrapper" onMouseDown={(ev) => linkHandler(ev, circleRef)}>
-    <NavLink to="/notifications">
-      <NotificationsBell />
-    </NavLink>
-  </div>
+        <div className="nav-link-wrapper" onMouseDown={(ev) => linkHandler(ev, circleRef)}>
+          <NavLink to="/notifications">
+            <NotificationsBell />
+          </NavLink>
+        </div>
 
-  {isManagerLike && (
-    <div className="nav-link-wrapper" onMouseDown={(ev) => linkHandler(ev, circleRef)}>
-      <NavLink to="/users">
-        <ProfileIcon />
-      </NavLink>
-    </div>
-  )}
-</nav>
+          {/* tasks */}
+        <div className="nav-link-wrapper" onMouseDown={(ev) => linkHandler(ev, circleRef)}>
+            <TasksBell pollMs={3000} />
+        </div>
+
+        {isManagerLike && (
+          <div className="nav-link-wrapper" onMouseDown={(ev) => linkHandler(ev, circleRef)}>
+            <NavLink to="/users">
+              <ProfileIcon />
+            </NavLink>
+          </div>
+        )}
+      </nav>
 
       <button
         className="button button-exit"

@@ -1,52 +1,140 @@
+/* client/src/pages/UsersPage/usersPage.css */
+
 .users-page {
-    padding: 60px 65px min(65px, 5vw) calc(var(--nav-offset) + min(56px, 5vw));
+  padding-left: calc(var(--nav-offset) + min(56px, 5vw));
+  padding-top: 24px;
+  padding-bottom: 65px;
+
+  height: 100dvh;
+  overflow: hidden; /* ✅ внешний скролл выключен */
 }
 
+.users-page .wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+
+  height: calc(100dvh - 24px - 65px);
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden; /* ✅ скролл только в list */
+  border-radius: 18px;
+}
+
+/* верхняя инфо-строка */
+.users-hint {
+  margin-bottom: 12px;
+  opacity: 0.75;
+}
+
+/* ✅ скролл контейнер */
+.users-list-scroll {
+  flex: 1;
+  min-height: 0;     /* ✅ критично */
+  overflow: auto;    /* ✅ скролл только тут */
+  padding-right: 6px;
+  padding-bottom: 24px; /* ✅ чтобы последняя карточка не пряталась */
+}
+
+/* список */
 .users {
-    padding: 15px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
+/* карточка пользователя */
 .users__user {
-    padding: 8px;
-    margin-top: 8px;
-    border-top: 1px solid var(--semi-dark);
-}
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  padding: 14px;
 
-.users__user:first-child {
-    border-top: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
 }
 
 .users__user-info {
-    flex: 2;
-    font-size: 0.9rem;
+  flex: 1;
+  min-width: 0;
+  font-size: 0.95rem;
 }
 
 .users__user-name {
-    margin-bottom: 6px;
-    font-size: 1.2rem;
+  margin: 0 0 6px 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.2;
 }
 
+.users__muted {
+  opacity: 0.85;
+}
+
+.users__row {
+  margin: 4px 0;
+}
+
+/* правая колонка с кнопками */
+.users__actions {
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+/* инпуты/селекты (как в задачах) */
+.users-control {
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.6);
+  outline: none;
+  width: 100%;
+}
+
+/* кнопки */
 .users__button {
-    padding: 15px min(20px, 4vw);
+  padding: 15px min(20px, 4vw);
 }
 
 .users__button--approved {
-    background-color: var(--secondary-color);
+  background-color: var(--secondary-color);
 }
 
-@media screen and (max-width: 1025px) {
-    .users-page {
-        padding-left: 65px;
-        padding-bottom: 120px;
-    }
+/* адаптив как в tasks/notifications */
+@media (max-width: 1025px) {
+  .users-page {
+    padding-left: 0;
+    padding-bottom: 86px;
+  }
+
+  .users-page .wrapper {
+    height: calc(100dvh - 24px - 86px);
+  }
 }
 
-@media screen and (max-width: 556px) {
-    .users__user {
-        flex-direction: column;
-    }
+@media (max-width: 620px) {
+  .users__user {
+    flex-direction: column;
+  }
 
-    .users__button {
-        margin-top: 8px;
-    }
+  .users__actions {
+    width: 100%;
+    min-width: 0;
+    align-items: stretch;
+  }
+
+  .users__actions .users__button {
+    width: 100%;
+  }
 }

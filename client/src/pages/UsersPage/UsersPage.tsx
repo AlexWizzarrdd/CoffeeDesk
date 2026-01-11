@@ -1,11 +1,12 @@
 // client/src/pages/UsersPage/UsersPage.tsx
+import "./usersPage.css";
 import {
   activateUser,
   approveUser,
   deleteUser,
   getUsers,
   setUserRole,
-  setUserMedicalExam, // ✅ добавили
+  setUserMedicalExam,
 } from "@/services/user.service";
 import { Button } from "@/ui-kit/Button/Button";
 import type { User } from "@/view-models/user.model";
@@ -70,7 +71,6 @@ export const UsersPage = () => {
   const [error, setError] = useState("");
   const [busyId, setBusyId] = useState<number | null>(null);
 
-  // ✅ два набора stats: план и факт
   const [plannedStats, setPlannedStats] = useState<StatsResponse | null>(null);
   const [workedStats, setWorkedStats] = useState<StatsResponse | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
@@ -79,7 +79,6 @@ export const UsersPage = () => {
   const fromMonth = useMemo(() => toISO(monthFirst(now)), [now]);
   const toMonth = useMemo(() => toISO(monthLast(now)), [now]);
 
-  // факт: 1..вчера (если вчера ещё в этом месяце, иначе 0)
   const toWorked = useMemo(() => {
     const y = yesterday(now);
     if (y < monthFirst(now)) return null;
@@ -133,7 +132,7 @@ export const UsersPage = () => {
     try {
       setBusyId(id);
       await activateUser(id);
-      loadUsers();
+      await loadUsers();
     } catch (e: any) {
       setError(e?.message || "Не удалось активировать пользователя");
     } finally {
@@ -145,7 +144,7 @@ export const UsersPage = () => {
     try {
       setBusyId(id);
       await approveUser(id);
-      loadUsers();
+      await loadUsers();
     } catch (e: any) {
       setError(e?.message || "Не удалось подтвердить пользователя");
     } finally {
@@ -165,7 +164,7 @@ export const UsersPage = () => {
     try {
       setBusyId(id);
       await deleteUser(id);
-      loadUsers();
+      await loadUsers();
     } catch (e: any) {
       setError(e?.message || "Не удалось удалить пользователя");
     } finally {
@@ -200,7 +199,6 @@ export const UsersPage = () => {
   const canDelete = (u: User) => {
     if (u.id === currentUser.id) return false;
     if (currentUser.role === "admin") return true;
-    // ✅ manager может удалять employee и intern (как у тебя в бекенде)
     return currentUser.role === "manager" && (u.role === "employee" || u.role === "intern");
   };
 
@@ -237,117 +235,100 @@ export const UsersPage = () => {
     const disabled = busyId === u.id;
 
     return (
-      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-        <select
-          value={u.role}
-          disabled={disabled}
-          onChange={(e) => onSetRole(u.id, e.target.value as RoleCode)}
-          style={{
-            padding: "8px 10px",
-            borderRadius: 8,
-            border: "1px solid rgba(255,255,255,0.15)",
-            background: "rgba(255,255,255,0.06)",
-            color: "inherit",
-            outline: "none",
-            minWidth: 160,
-          }}
-        >
-          {ROLE_OPTIONS.map((r) => (
-            <option key={r} value={r}>
-              {ROLE_LABEL[r]}
-            </option>
-          ))}
-        </select>
-      </div>
+      <select
+        className="users-control"
+        value={u.role}
+        disabled={disabled}
+        onChange={(e) => onSetRole(u.id, e.target.value as RoleCode)}
+      >
+        {ROLE_OPTIONS.map((r) => (
+          <option key={r} value={r}>
+            {ROLE_LABEL[r]}
+          </option>
+        ))}
+      </select>
     );
   };
 
   const renderMedicalExamUI = (u: User) => {
-    // ✅ показываем для manager/admin, редактирование тоже для manager/admin
     const disabled = busyId === u.id;
-
     return (
-      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-        <input
-          type="date"
-          value={toDateInputValue((u as any).medical_exam_recommended_at)}
-          disabled={disabled}
-          onChange={(e) => onSetMedicalExam(u.id, e.target.value ? e.target.value : null)}
-          style={{
-            padding: "8px 10px",
-            borderRadius: 8,
-            border: "1px solid rgba(255,255,255,0.15)",
-            background: "rgba(255,255,255,0.06)",
-            color: "inherit",
-            outline: "none",
-            minWidth: 160,
-          }}
-        />
-      </div>
+      <input
+        className="users-control"
+        type="date"
+        value={toDateInputValue((u as any).medical_exam_recommended_at)}
+        disabled={disabled}
+        onChange={(e) => onSetMedicalExam(u.id, e.target.value ? e.target.value : null)}
+      />
     );
   };
 
   return (
     <div className="page users-page">
       <main className="wrapper">
-        <div style={{ marginBottom: 12, opacity: 0.7 }}>
-          План: {fromMonth} — {toMonth} / Факт: {fromMonth} — {toWorked || "—"} {statsLoading ? "⏳" : ""}
+        <div className="users-hint">
+          План: {fromMonth} — {toMonth} / Факт: {fromMonth} — {toWorked || "—"}{" "}
+          {statsLoading ? "⏳" : ""}
         </div>
 
-        <ol className="users">
-          {users.map((u) => {
-            const disabled = busyId === u.id;
+        {/* ✅ скролл только здесь */}
+        <div className="users-list-scroll">
+          <ol className="users">
+            {users.map((u) => {
+              const disabled = busyId === u.id;
 
-            const worked = workedMap.get(u.id) || { hours: 0, minutes: 0 };
-            const planned = plannedMap.get(u.id) || { hours: 0, minutes: 0 };
+              const worked = workedMap.get(u.id) || { hours: 0, minutes: 0 };
+              const planned = plannedMap.get(u.id) || { hours: 0, minutes: 0 };
 
-            const workedLabel = formatHM(worked.hours, worked.minutes);
-            const plannedLabel = formatHM(planned.hours, planned.minutes);
+              const workedLabel = formatHM(worked.hours, worked.minutes);
+              const plannedLabel = formatHM(planned.hours, planned.minutes);
 
-            const roleLabel = (ROLE_LABEL as any)[u.role] || u.role;
+              const roleLabel = (ROLE_LABEL as any)[u.role] || u.role;
+              const medicalRu = formatRuDate((u as any).medical_exam_recommended_at);
 
-            const medicalRu = formatRuDate((u as any).medical_exam_recommended_at);
+              return (
+                <li key={u.id} className="users__user">
+                  <div className="users__user-info">
+                    <p className="users__user-name">
+                      {u.last_name} {u.first_name} {u.surname}
+                    </p>
 
-            return (
-              <li key={u.id} className="users__user flex justify-between">
-                <div className="users__user-info">
-                  <p className="users__user-name">
-                    {u.last_name} {u.first_name} {u.surname}
-                  </p>
-                  <p>{u.phone}</p>
-                  <p>Роль: {roleLabel}</p>
-                  <p>
-                    Статус: {u.is_active ? "active" : "inactive"} / {u.is_approved ? "approved" : "pending"}
-                  </p>
+                    <p className="users__row users__muted">{u.phone}</p>
+                    <p className="users__row">Роль: <b>{roleLabel}</b></p>
+                    <p className="users__row users__muted">
+                      Статус: {u.is_active ? "active" : "inactive"} /{" "}
+                      {u.is_approved ? "approved" : "pending"}
+                    </p>
 
-                  <p>
-                    Медосмотр (рекомендуется до): <b>{medicalRu}</b>
-                  </p>
+                    <p className="users__row">
+                      Медосмотр (рекомендуется до): <b>{medicalRu}</b>
+                    </p>
 
-                  <p>
-                    Отработано: <b>{workedLabel}</b> из <b>{plannedLabel}</b>
-                  </p>
-                </div>
+                    <p className="users__row">
+                      Отработано: <b>{workedLabel}</b> из <b>{plannedLabel}</b>
+                    </p>
+                  </div>
 
-                <div className="flex flex-column" style={{ gap: 8 }}>
-                  {renderMainAction(u)}
-                  {renderRoleUI(u)}
-                  {renderMedicalExamUI(u)}
+                  <div className="users__actions">
+                    {renderMainAction(u)}
+                    {renderRoleUI(u)}
+                    {renderMedicalExamUI(u)}
 
-                  {canDelete(u) ? (
-                    <Button
-                      classess="users__button users__button--danger"
-                      onClick={() => onDelete(u.id)}
-                      disabled={disabled}
-                    >
-                      {disabled ? "..." : "Удалить"}
-                    </Button>
-                  ) : null}
-                </div>
-              </li>
-            );
-          })}
-        </ol>
+                    {canDelete(u) ? (
+                      <Button
+                        classess="users__button users__button--danger"
+                        onClick={() => onDelete(u.id)}
+                        disabled={disabled}
+                      >
+                        {disabled ? "..." : "Удалить"}
+                      </Button>
+                    ) : null}
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
       </main>
     </div>
   );

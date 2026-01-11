@@ -8,6 +8,7 @@ import { UsersPage } from "@/pages/UsersPage/UsersPage";
 import { NotificationsPage } from "@/pages/NotificationsPage/NotificationsPage";
 import { Sidebar } from "@/views/Sidebar/Sidebar";
 import { getToken } from "@/api/tokenApi";
+import { TasksPage } from "@/pages/TasksPage/TasksPage";
 
 export default createBrowserRouter([
   {
@@ -30,6 +31,9 @@ export default createBrowserRouter([
       { path: "calendar", Component: CalendarPage },
       { path: "users", Component: UsersPage },
       { path: "notifications", Component: NotificationsPage },
+
+      // ✅ добавили страницу задач
+      { path: "tasks", Component: TasksPage },
     ],
   },
   { path: "/auth", element: <AuthPage /> },

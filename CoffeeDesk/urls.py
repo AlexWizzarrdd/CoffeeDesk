@@ -7,5 +7,5 @@ urlpatterns = [
     path("api/manager/", include("users.urls_manager")),
     path("api/schedule/", include("schedule.urls")),
     path("api/notifications/", include("notifications.urls")),
-
+    path("api/tasks/", include("tasks.urls")),
 ]
