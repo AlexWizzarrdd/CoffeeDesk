@@ -15,7 +15,7 @@ export const Login = observer(({ setIsLogin }: LoginProp) => {
             <FormField id="password" type="password" value={loginModel.password} placeholder="Введите пароль" cb={loginModel.setPassword} error={loginModel.passwordError} />
             {loginModel.networkError ? <p className="error-feedback">{loginModel.networkError}</p> : null}
             <button type="button" className="auth-toggle" onClick={() => setIsLogin(false)}>Еще нет аккаунта?</button>
-            <button className="button-sm" type="submit">Войти</button>
+            <Button className="button-sm" type="submit">Войти</Button>
         </form>
     </div>
 })

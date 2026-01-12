@@ -2,10 +2,12 @@ import React, { useEffect, useRef, type RefObject } from "react";
 import { NavLink, useNavigate } from "react-router";
 import CalendarIcon from "@/assets/icons/calendarLogo.svg?react";
 import ProfileIcon from "@/assets/icons/profileLogo.svg?react";
+import PeopleIcon from "@/assets/icons/people.svg?react";
 import { clearTokens } from "@/api/tokenApi";
 import { useAuthContext } from "@/hooks/authHooks";
 import { NotificationsBell } from "@/components/Notifications/NotificationsBell";
 import { TasksBell } from "@/components/TasksBell/TasksBell";
+import { Button } from "@/ui-kit/Button/Button";
 
 const updateMaskPosition = (
   maskRef: RefObject<SVGCircleElement | null>,
@@ -109,27 +111,29 @@ export const Sidebar = () => {
 
           {/* tasks */}
         <div className="nav-link-wrapper" onMouseDown={(ev) => linkHandler(ev, circleRef)}>
+          <NavLink to="/tasks">
             <TasksBell pollMs={3000} />
+          </NavLink>
         </div>
 
         {isManagerLike && (
           <div className="nav-link-wrapper" onMouseDown={(ev) => linkHandler(ev, circleRef)}>
             <NavLink to="/users">
-              <ProfileIcon />
+              <PeopleIcon />
             </NavLink>
           </div>
         )}
-      </nav>
 
-      <button
-        className="button button-exit"
-        onClick={() => {
-          clearTokens();
-          navigate("/auth");
-        }}
-      >
-        Выйти
-      </button>
+        <Button
+          className="button-exit"
+          onClick={() => {
+            clearTokens();
+            navigate("/auth");
+          }}
+        >
+          Выйти
+        </Button>
+      </nav>
     </div>
   );
 };

@@ -16,6 +16,8 @@
 
 @media screen and (max-width: 460px) {
     .auth-page {
+        height: 100vh;
+        width: auto;
         justify-content: end;
     }
 }

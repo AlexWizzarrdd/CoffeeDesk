@@ -9,17 +9,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
-  background: rgba(255, 255, 255, 0.25);
+  
   color: #111;
 }
 
 .notif-bell:hover {
-  background: rgba(255, 255, 255, 0.35);
-}
-
-.notif-bell__icon {
-  display: block;
+  fill: rgba(255, 255, 255, 0.35);
 }
 
 .notif-badge {

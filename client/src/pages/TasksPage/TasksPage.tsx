@@ -223,7 +223,7 @@ export const TasksPage = () => {
                 onChange={(e) => setCreateDue(e.target.value)}
               />
 
-              <Button classess="users__button" onClick={onCreate}>
+              <Button className="users__button" onClick={onCreate}>
                 Создать
               </Button>
             </div>
@@ -284,14 +284,14 @@ export const TasksPage = () => {
                     <div className="task-card__actions">
                       {t.status === "open" ? (
                         <Button
-                          classess="users__button"
+                          className="users__button"
                           onClick={() => onDone(t.id)}
                           disabled={disabled}
                         >
                           {disabled ? "..." : "Выполнено"}
                         </Button>
                       ) : (
-                        <Button classess="users__button users__button--approved" disabled>
+                        <Button className="users__button users__button--approved" disabled>
                           {STATUS_LABEL[t.status]}
                         </Button>
                       )}

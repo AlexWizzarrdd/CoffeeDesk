@@ -145,14 +145,14 @@ export const NotificationsPage = () => {
             </label>
 
             <Button
-              classess="button-sm"
+              className="button-sm"
               onClick={onReadAll}
               disabled={busyAll || items.length === 0}
             >
               {busyAll ? "..." : "Прочитать всё"}
             </Button>
 
-            <Button classess="button-sm" onClick={load} disabled={loading}>
+            <Button className="button-sm" onClick={load} disabled={loading}>
               {loading ? "..." : "Обновить"}
             </Button>
           </div>
@@ -198,7 +198,7 @@ export const NotificationsPage = () => {
                             }}
                           >
                             <Button
-                              classess="button-sm"
+                              className="button-sm"
                               onClick={() => onApproveShiftRequest(n)}
                               disabled={busyId === n.id}
                             >
@@ -206,7 +206,7 @@ export const NotificationsPage = () => {
                             </Button>
 
                             <Button
-                              classess="button-sm users__button--danger"
+                              className="button-sm users__button--danger"
                               onClick={() => onRejectShiftRequest(n)}
                               disabled={busyId === n.id}
                             >
@@ -215,7 +215,7 @@ export const NotificationsPage = () => {
                           </div>
                         ) : (
                           <Button
-                            classess="button-sm"
+                            className="button-sm"
                             onClick={() => onRead(n.id)}
                             disabled={busyId === n.id}
                           >

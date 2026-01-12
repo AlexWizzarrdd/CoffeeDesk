@@ -1,6 +1,5 @@
 import "./tasks-bell.css";
 import { useEffect, useState } from "react";
-import { NavLink } from "react-router";
 import TasksIcon from "@/assets/icons/tasksLogo.svg?react";
 import { getOpenTasksCount } from "@/services/tasks.service";
 
@@ -24,13 +23,13 @@ export const TasksBell = (props: { pollMs?: number }) => {
   }, [pollMs]);
 
   return (
-    <NavLink to="/tasks" className="tasks-link" aria-label="Задачи">
+    <>
       <TasksIcon className="tasks-link__icon" />
       {count > 0 && (
         <span className="tasks-badge">
           {count > 99 ? "99+" : count}
         </span>
       )}
-    </NavLink>
+    </>
   );
 };

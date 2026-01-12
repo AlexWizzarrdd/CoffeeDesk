@@ -116,7 +116,7 @@ export const ShiftRequestsPage = () => {
               <option value="cancelled">Отменённые</option>
             </select>
 
-            <Button classess="button-sm" onClick={load} disabled={loading}>
+            <Button className="button-sm" onClick={load} disabled={loading}>
               {loading ? "..." : "Обновить"}
             </Button>
           </div>
@@ -158,11 +158,11 @@ export const ShiftRequestsPage = () => {
                     <div className="shift-request-card__actions">
                       {r.status === "pending" ? (
                         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "flex-end" }}>
-                          <Button classess="users__button" onClick={() => onApprove(r.id)} disabled={disabled}>
+                          <Button className="users__button" onClick={() => onApprove(r.id)} disabled={disabled}>
                             {disabled ? "..." : "Одобрить"}
                           </Button>
                           <Button
-                            classess="users__button users__button--danger"
+                            className="users__button users__button--danger"
                             onClick={() => onReject(r.id)}
                             disabled={disabled}
                           >
@@ -170,7 +170,7 @@ export const ShiftRequestsPage = () => {
                           </Button>
                         </div>
                       ) : (
-                        <Button classess="users__button users__button--approved" disabled>
+                        <Button className="users__button users__button--approved" disabled>
                           {STATUS_LABEL[r.status]}
                         </Button>
                       )}

@@ -99,7 +99,6 @@
 @media screen and (max-width: 1025px) {
     .profile-page {
         padding-left: 0;
-        padding-bottom: 86px;
         justify-content: center;
     }
 }

@@ -207,7 +207,7 @@ export const UsersPage = () => {
 
     if (!u.is_active) {
       return (
-        <Button classess="users__button" onClick={() => onActivate(u.id)} disabled={disabled}>
+        <Button className="users__button" onClick={() => onActivate(u.id)} disabled={disabled}>
           {disabled ? "..." : "Активировать"}
         </Button>
       );
@@ -215,14 +215,14 @@ export const UsersPage = () => {
 
     if (u.is_active && !u.is_approved) {
       return (
-        <Button classess="users__button" onClick={() => onApprove(u.id)} disabled={disabled}>
+        <Button className="users__button" onClick={() => onApprove(u.id)} disabled={disabled}>
           {disabled ? "..." : "Подтвердить"}
         </Button>
       );
     }
 
     return (
-      <Button classess="users__button users__button--approved" disabled>
+      <Button className="users__button users__button--approved" disabled>
         Активен
       </Button>
     );
@@ -316,7 +316,7 @@ export const UsersPage = () => {
 
                     {canDelete(u) ? (
                       <Button
-                        classess="users__button users__button--danger"
+                        className="users__button users__button--danger"
                         onClick={() => onDelete(u.id)}
                         disabled={disabled}
                       >

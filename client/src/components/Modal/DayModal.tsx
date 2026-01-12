@@ -22,6 +22,7 @@ type DayModalProps = {
   date: Date | null;
   isOpen: boolean;
   closeModal: () => void;
+  onCreated?: () => void;
   theme?: string;
 };
 
@@ -52,7 +53,7 @@ const toHHMM = (t: string) => (t?.length >= 5 ? t.slice(0, 5) : t);
 const userLabel = (u: User) =>
   `${u.last_name} ${u.first_name} ${u.surname}`.replace(/\s+/g, " ").trim();
 
-export const DayModal = ({ date, isOpen, closeModal, theme }: DayModalProps) => {
+export const DayModal = ({ date, isOpen, closeModal, theme, onCreated }: DayModalProps) => {
   const { user } = useAuthContext();
   const isManagerLike = user.role === "manager" || user.role === "admin";
 
@@ -237,6 +238,9 @@ export const DayModal = ({ date, isOpen, closeModal, theme }: DayModalProps) => 
       }
 
       await load();
+      if (onCreated) {
+        onCreated();
+      }
       resetForm();
     } catch (e: any) {
       setError(e?.message || "Не удалось сохранить смену");
@@ -275,25 +279,8 @@ export const DayModal = ({ date, isOpen, closeModal, theme }: DayModalProps) => 
         onMouseDown={(e) => {
           if (e.target === e.currentTarget) closeModal();
         }}
-        style={{
-          position: "fixed",
-          inset: 0,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: 12,
-          zIndex: 50,
-        }}
       >
-        <div
-          className={theme ? `modal modal--${theme}` : "modal modal--round"}
-          style={{
-            width: "min(860px, 96vw)",
-            maxHeight: "90vh",
-            overflow: "hidden",
-            position: "relative",
-          }}
-        >
+        <div className={theme ? `modal modal--${theme}` : "modal modal--round"}>
           <button
             className="modal__exit"
             onClick={closeModal}
@@ -356,12 +343,12 @@ export const DayModal = ({ date, isOpen, closeModal, theme }: DayModalProps) => 
                       {/* manager/admin actions */}
                       {isManagerLike ? (
                         <div style={{ display: "flex", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
-                          <Button classess="users__button" onClick={() => startEdit(s)} disabled={rowBusy}>
+                          <Button className="users__button" onClick={() => startEdit(s)} disabled={rowBusy}>
                             Редактировать
                           </Button>
 
                           <Button
-                            classess="users__button users__button--danger"
+                            className="users__button users__button--danger"
                             onClick={() => onDelete(s.id)}
                             disabled={rowBusy}
                           >
@@ -373,7 +360,7 @@ export const DayModal = ({ date, isOpen, closeModal, theme }: DayModalProps) => 
                       {/* barista/intern: request change */}
                       {!isManagerLike && isOwnShift(s) ? (
                         <div style={{ display: "flex", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
-                          <Button classess="users__button" onClick={() => openRequest(s.id)}>
+                          <Button className="users__button" onClick={() => openRequest(s.id)}>
                             Запросить изменение
                           </Button>
                         </div>
@@ -458,12 +445,12 @@ export const DayModal = ({ date, isOpen, closeModal, theme }: DayModalProps) => 
                 />
 
                 <div style={{ display: "flex", gap: 10, marginTop: 14, flexWrap: "wrap" }}>
-                  <Button classess="users__button" onClick={onSubmit} disabled={busyId !== null}>
+                  <Button className="users__button" onClick={onSubmit} disabled={busyId !== null}>
                     {busyId !== null ? "..." : editingId ? "Сохранить" : "+ Добавить смену"}
                   </Button>
 
                   {editingId ? (
-                    <Button classess="users__button" onClick={resetForm} disabled={busyId !== null}>
+                    <Button className="users__button" onClick={resetForm} disabled={busyId !== null}>
                       Отмена
                     </Button>
                   ) : null}
@@ -545,10 +532,10 @@ export const DayModal = ({ date, isOpen, closeModal, theme }: DayModalProps) => 
             </div>
 
             <div style={{ display: "flex", gap: 10, marginTop: 14, flexWrap: "wrap" }}>
-              <Button classess="users__button" onClick={submitRequest} disabled={reqBusy}>
+              <Button className="users__button" onClick={submitRequest} disabled={reqBusy}>
                 {reqBusy ? "..." : "Отправить"}
               </Button>
-              <Button classess="users__button" onClick={() => setReqOpen(false)} disabled={reqBusy}>
+              <Button className="users__button" onClick={() => setReqOpen(false)} disabled={reqBusy}>
                 Отмена
               </Button>
             </div>

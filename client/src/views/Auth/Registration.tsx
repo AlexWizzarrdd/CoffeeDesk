@@ -83,7 +83,7 @@ export const Registration = observer(({ setIsLogin }: RegistrationProp) => {
           Уже есть аккаунт?
         </button>
 
-        <Button classess="button-sm" type="submit">
+        <Button className="button-sm" type="submit">
           Зарегистрироваться
         </Button>
       </form>

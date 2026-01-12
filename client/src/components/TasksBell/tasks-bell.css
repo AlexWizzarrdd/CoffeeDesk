@@ -1,33 +1,5 @@
-.tasks-link {
-  position: relative;
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  text-decoration: none;
-
-  /* как у твоих иконок */
-  background: rgba(255, 255, 255, 0.25);
-  color: #111;
-}
-
-.tasks-link:hover {
-  background: rgba(255, 255, 255, 0.35);
-}
-
-/* если NavLink активен */
-.tasks-link.active {
-  background: rgba(255, 255, 255, 0.55);
-}
-
-.tasks-link__icon {
-  display: block;
-  width: 22px;
-  height: 22px;
+.tasks-link__icon path {
+  stroke: var(--black-color);
 }
 
 /* ✅ красный круг + белый текст */

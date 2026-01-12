@@ -59,8 +59,8 @@
 }
 
 .calendar__button svg {
-    width: min(6vw, 58px);
-    height: min(8vw, 101px);
+    width: min(5vw, 58px);
+    height: min(7vw, 101px);
 }
 
 .calendar__button--prev {
@@ -77,12 +77,10 @@
 }
 .calendar__day--work {
   background: rgba(46, 204, 113, 0.22);
-  border: 1px solid rgba(46, 204, 113, 0.55);
 }
 
 .calendar__day--free {
   background: rgba(231, 76, 60, 0.14);
-  border: 1px solid rgba(231, 76, 60, 0.35);
 }
 
 /* опционально: дни не текущего месяца приглушаем */

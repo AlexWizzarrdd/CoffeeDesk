@@ -131,11 +131,6 @@
 @media (max-width: 1025px) {
   .notifications-page {
     padding-left: 0;
-    padding-bottom: 86px;
-  }
-
-  .notifications-page .wrapper {
-    height: calc(100dvh - 24px - 86px);
   }
 }
 

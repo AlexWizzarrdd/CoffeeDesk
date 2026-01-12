@@ -1,12 +1,11 @@
 .nav-wrapper {
     position: fixed;
     width: 100%;
-    max-width: clamp(86px, 12vw, 147px);
+    max-width: clamp(86px, min(12vw, 15vh), 147px);
     top: 0;
     left: 0;
     bottom: 0;
     z-index: 999;
-    grid-area: sidebar;
 }
 
 .nav-helper {
@@ -38,9 +37,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: clamp(74px, 10.5vw, 140px);
-    height: clamp(74px, 10.5vw, 140px);
-    margin-bottom: 30px;
+    width: clamp(74px, min(10.5vw, 12.5vh), 140px);
+    height: clamp(74px, min(10.5vw, 12.5vh), 140px);
+    margin-top: 20px;
     border-radius: 50%;
     background-color: var(--primary-color);
     transform: translateX(0);
@@ -50,16 +49,8 @@
 }
 
 .nav-link-wrapper a svg {
-    width: clamp(47px, 5.6vw, 73px);
+    width: clamp(36px, min(5.6vw, 7.6vh), 73px);
     height: 100%;
-}
-
-.nav-link-wrapper:first-of-type {
-    margin-top: 101px;
-}
-
-.nav-link-wrapper:last-of-type {
-    margin: 0;
 }
 
 .nav-link-wrapper:has(.active) {
@@ -68,9 +59,7 @@
 
 .button-exit {
     width: 100%;
-    position: absolute;
-    bottom: 0;
-    left: 0;
+    margin-top: auto;
     padding: 15px 0;
     z-index: 1;
     border-radius: 0;
@@ -102,12 +91,8 @@
         gap: 5vw;
     }
 
-    .nav-link-wrapper:first-of-type {
-        margin-top: 0;
-    }
-
     .nav-link-wrapper {
-        margin-bottom: 0;
+        margin: 0;
         width: max(74px, 8.2vw);
         height: max(74px, 8.2vw);
         background-color: transparent;
@@ -131,12 +116,10 @@
     }
 
     .button-exit {
+        position: fixed;
         width: fit-content;
-        position: absolute;
-        bottom: auto;
-        left: auto;
         right: 1%;
-        top: -90vh;
+        top: 10px;
         padding: 9px;
         background-color: var(--primary-color);
         color: var(--dark-color);

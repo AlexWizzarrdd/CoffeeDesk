@@ -1,7 +1,6 @@
 import "./notifications-bell.css";
 import { useEffect, useState } from "react";
 import { getUnreadCount } from "@/services/notifications.service";
-import { useNavigate } from "react-router";
 
 const BellIcon = (props: { className?: string }) => (
   <svg
@@ -14,7 +13,7 @@ const BellIcon = (props: { className?: string }) => (
   >
     <path
       d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2Zm6-6V11a6 6 0 1 0-12 0v5l-2 2v1h16v-1l-2-2Z"
-      fill="currentColor"
+      fill="black"
     />
   </svg>
 );
@@ -23,7 +22,6 @@ export const NotificationsBell = (props: { pollMs?: number }) => {
   const pollMs = props.pollMs ?? 25000;
 
   const [count, setCount] = useState(0);
-  const navigate = useNavigate();
 
   const refreshCount = async () => {
     try {
@@ -42,17 +40,12 @@ export const NotificationsBell = (props: { pollMs?: number }) => {
   }, [pollMs]);
 
   return (
-    <button
-      type="button"
-      onClick={() => navigate("/notifications")}
-      className="notif-bell"
-      aria-label="Уведомления"
-    >
+    <>
       <BellIcon className="notif-bell__icon" />
 
       {count > 0 ? (
         <span className="notif-badge">{count > 99 ? "99+" : count}</span>
       ) : null}
-    </button>
+    </>
   );
 };

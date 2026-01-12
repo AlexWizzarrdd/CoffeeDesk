@@ -103,12 +103,10 @@ h2 {
 
 @media screen and (max-width: 1025px) {
     .page {
-        justify-content: center;
-    }
-
-    .page-with-nav {
-        align-items: center;
+        width: 95vw;
+        height: calc(100dvh - 24px - 86px);
+        margin: 0 auto;
         padding-left: 0;
-        padding-bottom: 86px;
+        justify-content: center;
     }
 }

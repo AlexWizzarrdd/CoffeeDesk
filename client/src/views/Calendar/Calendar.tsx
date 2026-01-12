@@ -1,5 +1,6 @@
 // client/src/views/Calendar/Calendar.tsx
 import React, { useEffect, useMemo, useState } from "react";
+import { useSwipeable } from 'react-swipeable';
 import { Dropdown } from "@/ui-kit/Dropdown/Dropdown";
 import { YearDropdown } from "./components/YearDropdown";
 import { DayModal } from "@/components/Modal/DayModal";
@@ -105,6 +106,7 @@ export const Calendar = () => {
   const selectedDayShifts = selectedISO ? shiftsByDate.get(selectedISO) || [] : [];
 
   const reload = async () => {
+    console.log('reload')
     try {
       setLoading(true);
       const data = await getShifts(range.from, range.to);
@@ -172,14 +174,23 @@ export const Calendar = () => {
     }
   };
 
+  const isMobile = window.innerWidth < 769;
+
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => nextMonthHandler(month, -1, setMonth, setYear),
+    onSwipedRight: () => nextMonthHandler(month, 1, setMonth, setYear),
+    trackMouse: true,
+    preventScrollOnSwipe: true
+  });
+
   return (
-    <div className="wrapper calendar-wrapper flex">
-      <button
+    <div className="wrapper calendar-wrapper flex" {...swipeHandlers}>
+      {isMobile ? null : <button
         className="calendar__button calendar__button--prev"
         onClick={() => nextMonthHandler(month, -1, setMonth, setYear)}
       >
         <ArrowIcon />
-      </button>
+      </button>}
 
       <div className="calendar">
         <header className="calendar__header flex">
@@ -197,7 +208,7 @@ export const Calendar = () => {
           <YearDropdown year={year} setYear={setYear} />
 
           {isManagerLike ? (
-            <Button classess="button-sm" onClick={generateMonth} disabled={loading}>
+            <Button className="button-sm" onClick={generateMonth} disabled={loading}>
               ⚙️ Автораспределить
             </Button>
           ) : null}
@@ -255,12 +266,12 @@ export const Calendar = () => {
         </div>
       </div>
 
-      <button
+      {isMobile ? null : <button
         className="calendar__button calendar__button--next"
         onClick={() => nextMonthHandler(month, 1, setMonth, setYear)}
       >
         <ArrowIcon />
-      </button>
+      </button>}
     </div>
   );
 };
